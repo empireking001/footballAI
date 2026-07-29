@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design tokens — "matchday data terminal"
+  Stadium-night navy base, floodlight-amber action color, pitch-green for
+  live/positive signals, coral for risk, violet reserved for VIP only.
+  Values are HSL triplets (no `hsl()` wrapper) so Tailwind can apply
+  opacity modifiers like bg-primary/20.
+*/
+:root {
+  --background: 222 47% 6%; /* #0B1220 */
+  --foreground: 210 20% 96%; /* #F2F5F8 */
+
+  --surface: 222 37% 10%; /* #121A2B */
+  --surface-elevated: 220 33% 14%; /* #182238 */
+  --border: 219 27% 20%; /* #24314A */
+  --muted-foreground: 217 15% 65%; /* #8B95A7 */
+
+  --primary: 40 89% 61%; /* #F5B942 floodlight amber */
+  --primary-foreground: 222 47% 8%;
+
+  --live: 152 60% 48%; /* #3ACB7C pitch green */
+  --live-foreground: 222 47% 8%;
+
+  --danger: 4 89% 67%; /* #FF6259 coral */
+  --danger-foreground: 222 47% 8%;
+
+  --vip: 259 78% 66%; /* #8B5CF6 violet, VIP-only accent */
+  --vip-foreground: 210 20% 98%;
+
+  --info: 217 70% 63%; /* #5B8DEF cool blue — away-side outcomes only */
+  --info-foreground: 210 20% 98%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere — never suppressed */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Tabular figures for scorelines, odds, and countdowns — never let digits jiggle */
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
