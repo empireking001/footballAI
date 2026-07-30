@@ -1,30 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { CheckCircle2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
-import { useAuthStore } from '@/store/authStore';
-import { updateProfile, changePassword } from '@/lib/api/user';
-import { resendVerification } from '@/lib/api/auth';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { DashboardPageHeader } from "@/components/dashboard/DashboardPageHeader";
+import { useAuthStore } from "@/store/authStore";
+import { updateProfile, changePassword } from "@/lib/api/user";
+import { resendVerification } from "@/lib/api/auth";
 
-const profileSchema = z.object({ name: z.string().trim().min(2, 'Enter your full name') });
+const profileSchema = z.object({
+  name: z.string().trim().min(2, "Enter your full name"),
+});
 type ProfileValues = z.infer<typeof profileSchema>;
 
 const passwordSchema = z
   .string()
-  .min(8, 'At least 8 characters')
-  .regex(/[A-Z]/, 'At least one uppercase letter')
-  .regex(/[a-z]/, 'At least one lowercase letter')
-  .regex(/[0-9]/, 'At least one number');
+  .min(8, "At least 8 characters")
+  .regex(/[A-Z]/, "At least one uppercase letter")
+  .regex(/[a-z]/, "At least one lowercase letter")
+  .regex(/[0-9]/, "At least one number");
 
 const passwordFormSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
+  currentPassword: z.string().min(1, "Current password is required"),
   newPassword: passwordSchema,
 });
 type PasswordValues = z.infer<typeof passwordFormSchema>;
@@ -39,7 +41,10 @@ function ProfileSection() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ProfileValues>({ resolver: zodResolver(profileSchema), defaultValues: { name: user?.name } });
+  } = useForm<ProfileValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { name: user?.name },
+  });
 
   async function onSubmit(values: ProfileValues) {
     const updated = await updateProfile(values);
@@ -51,13 +56,22 @@ function ProfileSection() {
   return (
     <Card>
       <CardContent className="pt-5">
-        <h2 className="font-display text-lg font-bold uppercase tracking-tight">Profile</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
-          <Input label="Full name" error={errors.name?.message} {...register('name')} />
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight">
+          Profile
+        </h2>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-4 flex flex-col gap-4"
+        >
+          <Input
+            label="Full name"
+            error={errors.name?.message}
+            {...register("name")}
+          />
           <Input label="Email" value={user?.email} disabled readOnly />
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={isSubmitting} className="w-fit">
-              {isSubmitting ? 'Saving…' : 'Save changes'}
+              {isSubmitting ? "Saving…" : "Save changes"}
             </Button>
             {saved && <span className="text-sm text-live">Saved</span>}
           </div>
@@ -76,7 +90,9 @@ function EmailVerificationSection() {
       <Card>
         <CardContent className="flex items-center gap-3 pt-5">
           <CheckCircle2 className="h-5 w-5 text-live" />
-          <span className="text-sm text-foreground">Your email is verified.</span>
+          <span className="text-sm text-foreground">
+            Your email is verified.
+          </span>
         </CardContent>
       </Card>
     );
@@ -91,10 +107,16 @@ function EmailVerificationSection() {
   return (
     <Card>
       <CardContent className="pt-5">
-        <h2 className="font-display text-lg font-bold uppercase tracking-tight">Email verification</h2>
-        <p className="mt-2 text-sm text-muted">Your email address hasn&apos;t been verified yet.</p>
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight">
+          Email verification
+        </h2>
+        <p className="mt-2 text-sm text-muted">
+          Your email address hasn&apos;t been verified yet.
+        </p>
         {sent ? (
-          <p className="mt-3 text-sm text-live">Verification email sent — check your inbox.</p>
+          <p className="mt-3 text-sm text-live">
+            Verification email sent — check your inbox.
+          </p>
         ) : (
           <Button variant="secondary" className="mt-3" onClick={handleResend}>
             Resend verification email
@@ -119,38 +141,44 @@ function PasswordSection() {
   async function onSubmit(values: PasswordValues) {
     setServerError(null);
     try {
-      await changePassword(values.currentPassword, values.newPassword);
+      // FIX: Pass 'values' directly as a single payload object ({ currentPassword, newPassword })
+      await changePassword(values);
       setSuccess(true);
       reset();
       setTimeout(() => setSuccess(false), 2500);
     } catch {
-      setServerError('Current password is incorrect.');
+      setServerError("Current password is incorrect.");
     }
   }
 
   return (
     <Card>
       <CardContent className="pt-5">
-        <h2 className="font-display text-lg font-bold uppercase tracking-tight">Change password</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight">
+          Change password
+        </h2>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-4 flex flex-col gap-4"
+        >
           <Input
             label="Current password"
             type="password"
             autoComplete="current-password"
             error={errors.currentPassword?.message}
-            {...register('currentPassword')}
+            {...register("currentPassword")}
           />
           <Input
             label="New password"
             type="password"
             autoComplete="new-password"
             error={errors.newPassword?.message}
-            {...register('newPassword')}
+            {...register("newPassword")}
           />
           {serverError && <p className="text-sm text-danger">{serverError}</p>}
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={isSubmitting} className="w-fit">
-              {isSubmitting ? 'Updating…' : 'Update password'}
+              {isSubmitting ? "Updating…" : "Update password"}
             </Button>
             {success && <span className="text-sm text-live">Updated</span>}
           </div>
@@ -163,7 +191,10 @@ function PasswordSection() {
 export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
-      <DashboardPageHeader title="Settings" subtitle="Manage your profile, security, and email." />
+      <DashboardPageHeader
+        title="Settings"
+        subtitle="Manage your profile, security, and email."
+      />
       <ProfileSection />
       <EmailVerificationSection />
       <PasswordSection />
