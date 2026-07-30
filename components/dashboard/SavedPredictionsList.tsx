@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { BookmarkX, Loader2 } from 'lucide-react';
-import { PredictionCard } from '@/components/predictions/PredictionCard';
-import { getSavedPredictions, toggleSavedPrediction } from '@/lib/api/user';
-import { Prediction } from '@/types/api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BookmarkX, Loader2 } from "lucide-react";
+import { PredictionCard } from "@/components/predictions/PredictionCard";
+import { getSavedPredictions, toggleSavedPrediction } from "@/lib/api/user";
+import { Prediction } from "@/types/api";
 
 export function SavedPredictionsList() {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['saved-predictions'],
+    queryKey: ["saved-predictions"],
     queryFn: () => getSavedPredictions(1, 50),
   });
 
   const unsaveMutation = useMutation({
     mutationFn: (predictionId: string) => toggleSavedPrediction(predictionId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['saved-predictions'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["saved-predictions"] }),
   });
 
   if (isLoading) {
@@ -27,12 +28,17 @@ export function SavedPredictionsList() {
     );
   }
 
-  const predictions = (data?.data ?? []) as Prediction[];
+  // FIX: Extract array directly from PaginatedPredictions payload
+  const predictions = ((data as any)?.predictions ??
+    (data as any)?.items ??
+    (data as any)?.docs ??
+    []) as Prediction[];
 
   if (predictions.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border p-12 text-center text-sm text-muted">
-        You haven&apos;t saved any predictions yet — bookmark one from any prediction card.
+        You haven&apos;t saved any predictions yet — bookmark one from any
+        prediction card.
       </div>
     );
   }
