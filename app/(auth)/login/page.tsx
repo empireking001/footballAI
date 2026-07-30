@@ -1,21 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { isAxiosError } from 'axios';
-import { AuthCard } from '@/components/auth/AuthCard';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { useAuthStore } from '@/store/authStore';
-import { login } from '@/lib/api/auth';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { isAxiosError } from "axios";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { useAuthStore } from "@/store/authStore";
+import { login } from "@/lib/api/auth";
 
 const schema = z.object({
-  email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -33,14 +36,15 @@ export default function LoginPage() {
   async function onSubmit(values: FormValues) {
     setServerError(null);
     try {
-      const { user, accessToken } = await login(values.email, values.password);
+      // FIX: Pass 'values' directly as a single object argument
+      const { user, accessToken } = await login(values);
       setAuth(user, accessToken);
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
       const message = isAxiosError(error)
         ? error.response?.data?.message
         : undefined;
-      setServerError(message || 'Something went wrong. Please try again.');
+      setServerError(message || "Something went wrong. Please try again.");
     }
   }
 
@@ -50,8 +54,11 @@ export default function LoginPage() {
       subtitle="Welcome back — pick up where you left off."
       footer={
         <span className="text-muted">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-semibold text-primary hover:underline">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-semibold text-primary hover:underline"
+          >
             Sign up free
           </Link>
         </span>
@@ -63,26 +70,34 @@ export default function LoginPage() {
           type="email"
           autoComplete="email"
           error={errors.email?.message}
-          {...register('email')}
+          {...register("email")}
         />
         <Input
           label="Password"
           type="password"
           autoComplete="current-password"
           error={errors.password?.message}
-          {...register('password')}
+          {...register("password")}
         />
 
         <div className="-mt-1 text-right">
-          <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-xs font-medium text-primary hover:underline"
+          >
             Forgot password?
           </Link>
         </div>
 
         {serverError && <p className="text-sm text-danger">{serverError}</p>}
 
-        <Button type="submit" size="lg" disabled={isSubmitting} className="mt-2">
-          {isSubmitting ? 'Logging in…' : 'Log in'}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting}
+          className="mt-2"
+        >
+          {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
       </form>
     </AuthCard>
