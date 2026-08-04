@@ -1,35 +1,47 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
-import { DataTable, Column } from '@/components/admin/DataTable';
-import { Badge } from '@/components/ui/Badge';
-import { adminList } from '@/lib/api/admin';
-import { Team } from '@/types/api';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { DataTable, Column } from "@/components/admin/DataTable";
+import { Badge } from "@/components/ui/Badge";
+import { adminList } from "@/lib/api/admin";
+import { Team } from "@/types/api";
 
 export default function AdminTeamsPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'teams', page, q],
-    queryFn: () => adminList<Team & { isActive: boolean }>('teams', { page, limit: 20, q: q || undefined }),
+    queryKey: ["admin", "teams", page, q],
+    queryFn: () =>
+      adminList<Team & { isActive: boolean }>("teams", {
+        page,
+        limit: 20,
+        q: q || undefined,
+      }),
   });
 
   const columns: Column<Team & { isActive: boolean }>[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'country', label: 'Country' },
-    { key: 'venueName', label: 'Venue', render: (t) => t.venueName || '—' },
+    { key: "name", label: "Name" },
+    { key: "country", label: "Country" },
+    { key: "venueName", label: "Venue", render: (t) => t.venueName || "—" },
     {
-      key: 'isActive',
-      label: 'Status',
-      render: (t) => <Badge variant={t.isActive ? 'live' : 'default'}>{t.isActive ? 'active' : 'inactive'}</Badge>,
+      key: "isActive",
+      label: "Status",
+      render: (t) => (
+        <Badge variant={t.isActive ? "live" : "default"}>
+          {t.isActive ? "active" : "inactive"}
+        </Badge>
+      ),
     },
   ];
+
+  // Extract pagination metadata safely regardless of whether backend returns `pagination` or `meta`
+  const pagination = (data as any)?.pagination || (data as any)?.meta;
 
   return (
     <div>
@@ -58,8 +70,8 @@ export default function AdminTeamsPage() {
         rowKey={(t) => t._id}
         isLoading={isLoading}
         onRowClick={(t) => router.push(`/admin/teams/${t._id}`)}
-        page={data?.meta.page}
-        totalPages={data?.meta.totalPages}
+        page={pagination?.page ?? page}
+        totalPages={pagination?.totalPages ?? 1}
         onPageChange={setPage}
       />
     </div>
