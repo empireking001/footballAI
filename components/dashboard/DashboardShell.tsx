@@ -3,10 +3,19 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader2, LayoutDashboard, Bookmark, CreditCard, Gift, Heart, Settings } from 'lucide-react';
-import { Container } from '@/components/ui/Container';
-import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/authStore';
+import {
+  Loader2,
+  LayoutDashboard,
+  Bookmark,
+  CreditCard,
+  Gift,
+  Heart,
+  Settings,
+} from "lucide-react";
+import { Container } from "@/components/ui/Container";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
 
 const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -48,8 +57,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                  active ? 'bg-primary/15 text-primary' : 'text-muted hover:bg-surface-elevated hover:text-foreground',
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted hover:bg-surface-elevated hover:text-foreground",
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -58,6 +69,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <div className="mt-4 border-t border-border pt-4">
+          <LogoutButton variant="nav" />
+        </div>
       </aside>
 
       <div className="min-w-0">{children}</div>
@@ -71,8 +85,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium',
-                active ? 'text-primary' : 'text-muted',
+                "flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium",
+                active ? "text-primary" : "text-muted",
               )}
             >
               <item.icon className="h-5 w-5" />

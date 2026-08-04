@@ -22,9 +22,10 @@ import {
   Mail,
   CreditCard,
 } from 'lucide-react';
-import { Container } from '@/components/ui/Container';
-import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/authStore';
+import { Container } from "@/components/ui/Container";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
 
 const NAV_ITEMS = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -80,14 +81,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="flex gap-1 overflow-x-auto lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:flex-col lg:overflow-y-auto lg:overflow-x-visible">
           {NAV_ITEMS.map((item) => {
-            const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            const active =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex flex-shrink-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                  active ? 'bg-primary/15 text-primary' : 'text-muted hover:bg-surface-elevated hover:text-foreground',
+                  "flex flex-shrink-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted hover:bg-surface-elevated hover:text-foreground",
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -96,6 +102,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <div className="mt-4 border-t border-border pt-4">
+          <LogoutButton variant="nav" />
+        </div>
       </aside>
 
       <div className="min-w-0">{children}</div>
