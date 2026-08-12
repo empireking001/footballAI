@@ -36,19 +36,19 @@ export interface League {
   country: string;
   logoUrl?: string;
   season: number;
-  type: 'league' | 'cup';
+  type: "league" | "cup";
   externalId?: number;
   isActive?: boolean;
 }
 
 export type MatchStatus =
-  | 'scheduled'
-  | 'live'
-  | 'halftime'
-  | 'finished'
-  | 'postponed'
-  | 'cancelled'
-  | 'suspended';
+  | "scheduled"
+  | "live"
+  | "halftime"
+  | "finished"
+  | "postponed"
+  | "cancelled"
+  | "suspended";
 
 export interface Match {
   _id: string;
@@ -74,8 +74,8 @@ export interface MarketOutcome {
   suggestedOddsMax?: number;
 }
 
-export type RiskRating = 'low' | 'medium' | 'high';
-export type PredictionTier = 'free' | 'vip';
+export type RiskRating = "low" | "medium" | "high";
+export type PredictionTier = "free" | "vip";
 
 export interface Prediction {
   _id: string;
@@ -106,26 +106,39 @@ export interface Announcement {
   _id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'promo';
+  type: "info" | "success" | "warning" | "promo";
 }
 
 export interface SiteSettings {
   siteName: string;
   logoUrl?: string;
-  navigation: { label: string; url: string; order: number; children?: unknown[] }[];
+  navigation: {
+    label: string;
+    url: string;
+    order: number;
+    children?: unknown[];
+  }[];
   footerColumns: { title: string; links: { label: string; url: string }[] }[];
   socialLinks: Record<string, string | undefined>;
   contact: { email?: string; phone?: string; address?: string };
-  seoDefaults: { metaTitle: string; metaDescription: string; metaKeywords: string[] };
-  announcementBanner: { isEnabled: boolean; message?: string; linkUrl?: string };
+  seoDefaults: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+  announcementBanner: {
+    isEnabled: boolean;
+    message?: string;
+    linkUrl?: string;
+  };
 }
 
 export interface Coupon {
   _id: string;
   code: string;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
   discountValue: number;
-  applicablePlans: ('monthly' | 'quarterly' | 'yearly')[];
+  applicablePlans: ("monthly" | "quarterly" | "yearly")[];
   maxUses?: number;
   usedCount: number;
   expiresAt?: string;
@@ -141,7 +154,7 @@ export interface AdminBlogPost {
   coverImageUrl?: string;
   category?: string;
   tags: string[];
-  status: 'draft' | 'published';
+  status: "draft" | "published";
   publishedAt?: string;
   views: number;
   metaTitle?: string;
@@ -149,7 +162,7 @@ export interface AdminBlogPost {
 }
 
 export interface Plan {
-  plan: 'monthly' | 'quarterly' | 'yearly';
+  plan: "monthly" | "quarterly" | "yearly";
   durationDays: number;
   pricing: { NGN: number; USD: number };
 }
@@ -158,9 +171,31 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin' | 'super_admin';
+  role: "user" | "admin" | "super_admin";
   isEmailVerified: boolean;
-  subscriptionTier: 'free' | 'vip';
+  subscriptionTier: "free" | "vip";
   avatarUrl?: string;
   referralCode: string;
+}
+
+export interface Standing {
+  _id: string;
+  league: string;
+  team: {
+    _id: string;
+    name: string;
+    slug: string;
+    shortName?: string;
+    logoUrl?: string;
+  };
+  position: number;
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  form?: string;
 }

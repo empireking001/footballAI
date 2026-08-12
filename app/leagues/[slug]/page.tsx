@@ -2,9 +2,10 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { PredictionsGrid } from '@/components/predictions/PredictionsGrid';
-import { FavoriteButton } from '@/components/dashboard/FavoriteButton';
-import { fetchApi } from '@/lib/api/server';
-import { League, Prediction } from '@/types/api';
+import { FavoriteButton } from "@/components/dashboard/FavoriteButton";
+import { StandingsTable } from "@/components/leagues/StandingsTable";
+import { fetchApi } from "@/lib/api/server";
+import { League, Prediction, Standing } from "@/types/api";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -35,6 +36,11 @@ export default async function LeagueDetailPage({ params }: PageProps) {
     { revalidate: 300 },
   );
 
+  const { data: standings } = await fetchApi<Standing[]>(
+    `/leagues/${slug}/standings`,
+    { revalidate: 900 },
+  );
+
   return (
     <>
       <div className="border-b border-border bg-surface/50 py-10 sm:py-12">
@@ -42,9 +48,17 @@ export default async function LeagueDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-surface-elevated">
               {league.logoUrl ? (
-                <Image src={league.logoUrl} alt={league.name} width={40} height={40} className="object-contain" />
+                <Image
+                  src={league.logoUrl}
+                  alt={league.name}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
               ) : (
-                <span className="font-display text-xl text-muted">{league.name.slice(0, 2).toUpperCase()}</span>
+                <span className="font-display text-xl text-muted">
+                  {league.name.slice(0, 2).toUpperCase()}
+                </span>
               )}
             </div>
             <div>
@@ -57,6 +71,15 @@ export default async function LeagueDetailPage({ params }: PageProps) {
           <FavoriteButton id={league._id} type="league" />
         </Container>
       </div>
+
+      {standings && standings.length > 0 && (
+        <Container className="py-10 sm:py-12">
+          <h2 className="mb-6 font-display text-xl font-bold uppercase tracking-tight">
+            League table
+          </h2>
+          <StandingsTable standings={standings} />
+        </Container>
+      )}
 
       <Container className="py-10 sm:py-12">
         <h2 className="mb-6 font-display text-xl font-bold uppercase tracking-tight">
