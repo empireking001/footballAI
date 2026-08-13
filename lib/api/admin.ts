@@ -27,11 +27,10 @@ export async function adminList<T>(
   resource: string,
   params: AdminListParams = {},
 ): Promise<AdminListResponse<T>> {
-  const { data } = await apiClient.get<ApiResponse<AdminListResponse<T>>>(
-    `/admin/${resource}`,
-    { params },
-  );
-  return data.data;
+  const { data } = await apiClient.get<
+    ApiResponse<T[]> & { meta: PaginationMeta }
+  >(`/admin/${resource}`, { params });
+  return { data: data.data, meta: data.meta };
 }
 
 export async function adminGet<T>(resource: string, id: string): Promise<T> {
