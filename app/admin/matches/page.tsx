@@ -34,7 +34,6 @@ export default function AdminMatchesPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<MatchStatus | "all">("all");
-
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "matches", page, status],
     queryFn: () =>
@@ -49,30 +48,22 @@ export default function AdminMatchesPage() {
     {
       key: "match",
       label: "Match",
-      render: (m) => `${m.homeTeam.name} vs ${m.awayTeam.name}`,
+      render: (match) => `${match.homeTeam.name} vs ${match.awayTeam.name}`,
     },
-    { key: "league", label: "League", render: (m) => m.league.name },
-    {
-      key: "kickoffAt",
-      label: "Kickoff",
-      render: (m) => formatKickoff(m.kickoffAt),
-    },
+    { key: "league", label: "League", render: (match) => match.league.name },
+    { key: "kickoffAt", label: "Kickoff", render: (match) => formatKickoff(match.kickoffAt) },
     {
       key: "score",
       label: "Score",
-      render: (m) =>
-        m.score.homeFullTime !== undefined
-          ? `${m.score.homeFullTime}-${m.score.awayFullTime}`
+      render: (match) =>
+        match.score.homeFullTime !== undefined
+          ? `${match.score.homeFullTime}-${match.score.awayFullTime}`
           : "—",
     },
     {
       key: "status",
       label: "Status",
-      render: (m) => (
-        <Badge variant={STATUS_VARIANT[m.status] ?? "default"}>
-          {m.status}
-        </Badge>
-      ),
+      render: (match) => <Badge variant={STATUS_VARIANT[match.status] ?? "default"}>{match.status}</Badge>,
     },
   ];
 
@@ -80,37 +71,35 @@ export default function AdminMatchesPage() {
     <div>
       <AdminPageHeader
         title="Matches"
-        subtitle="Matches populate via league fixture sync."
+        subtitle="Read-only verification. Fixtures, scores, and odds are maintained automatically; no manual sync or edit controls are available here."
       />
-
       <div className="mb-4 flex gap-2 overflow-x-auto">
-        {STATUS_OPTIONS.map((s) => (
+        {STATUS_OPTIONS.map((option) => (
           <button
-            key={s}
+            key={option}
             type="button"
             onClick={() => {
-              setStatus(s);
+              setStatus(option);
               setPage(1);
             }}
             className={`flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-              status === s
+              status === option
                 ? "border-primary bg-primary/15 text-primary"
                 : "border-border bg-surface-elevated text-muted"
             }`}
           >
-            {s}
+            {option}
           </button>
         ))}
       </div>
-
       <DataTable
         columns={columns}
         rows={data?.data ?? []}
-        rowKey={(m) => m._id}
+        rowKey={(match) => match._id}
         isLoading={isLoading}
-        onRowClick={(m) => router.push(`/admin/matches/${m._id}`)}
-        page={data?.meta?.page}
-        totalPages={data?.meta?.totalPages}
+        onRowClick={(match) => router.push(`/admin/matches/${match._id}`)}
+        page={data?.meta.page}
+        totalPages={data?.meta.totalPages}
         onPageChange={setPage}
       />
     </div>

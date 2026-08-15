@@ -1,34 +1,61 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
-import { TeamSearch } from '@/components/teams/TeamSearch';
+import { FeaturedPredictionBrowser } from '@/components/home/FeaturedPredictionBrowser';
 import { fetchApi } from '@/lib/api/server';
-import { Team } from '@/types/api';
+import { Prediction } from '@/types/api';
 
 export const metadata: Metadata = {
-  title: 'Teams',
-  description: 'Search and browse every team covered by Football AI predictions.',
+  title: 'Football AI Predictions',
+  description: 'AI-powered football predictions with transparent supporting data, form, standings, and odds context.',
 };
 
-export default async function TeamsPage() {
-  const { data } = await fetchApi<Team[]>('/teams?limit=30', { revalidate: 3600 });
+async function getFeatured(when: 'today' | 'tomorrow' | 'week'): Promise<Prediction[]> {
+  const result = await fetchApi<Prediction[]>(`/predictions/featured?when=${when}&limit=50`, {
+    revalidate: 120,
+    tags: ['predictions', `predictions-${when}`],
+  });
+  return result.data ?? [];
+}
+
+export default async function HomePage() {
+  const [today, tomorrow, week] = await Promise.all([
+    getFeatured('today'),
+    getFeatured('tomorrow'),
+    getFeatured('week'),
+  ]);
 
   return (
     <>
-      <div className="border-b border-border bg-surface/50 py-10 sm:py-12">
-        <Container>
-          <span className="font-mono text-xs uppercase tracking-widest text-primary">Explore</span>
-          <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-            Teams
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-muted">
-            Search for any team to see their upcoming AI predictions.
-          </p>
+      <section className="relative overflow-hidden border-b border-border bg-surface py-16 sm:py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.18),transparent_45%)]" />
+        <Container className="relative">
+          <span className="font-mono text-xs uppercase tracking-[0.22em] text-primary">Football intelligence</span>
+          <h1 className="mt-4 max-w-4xl font-display text-4xl font-bold uppercase leading-none tracking-tight sm:text-6xl">Make sense of every fixture before kickoff.</h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">Football AI combines statistical modelling, automated fixture data, team form, standings, and market context into clear, informational predictions.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="#featured" className="rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">Browse featured picks</Link>
+            <Link href="/leagues" className="rounded-md border border-border bg-surface-elevated px-5 py-3 text-sm font-semibold text-foreground hover:border-primary/50">Explore leagues</Link>
+          </div>
         </Container>
+      </section>
+      <div id="featured">
+        <FeaturedPredictionBrowser predictions={{ today, tomorrow, week }} />
       </div>
-
-      <Container className="py-10 sm:py-12">
-        <TeamSearch initialTeams={data ?? []} />
-      </Container>
+      <section className="py-12 sm:py-16">
+        <Container className="grid gap-5 md:grid-cols-3">
+          {[
+            ['Statistical foundation', 'Poisson-based modelling turns fixture and team signals into calibrated probabilities.'],
+            ['Supporting context', 'See recent form, league position, head-to-head history, and odds alongside every detailed prediction.'],
+            ['Informational only', 'Football AI is not a betting or staking service. Use predictions as analytical context, not financial advice.'],
+          ].map(([title, body]) => (
+            <div key={title} className="rounded-lg border border-border bg-surface-elevated p-5">
+              <h2 className="font-display text-lg font-bold uppercase tracking-tight">{title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+            </div>
+          ))}
+        </Container>
+      </section>
     </>
   );
 }

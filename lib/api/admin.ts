@@ -17,6 +17,12 @@ export interface AdminListResponse<T> {
   meta: PaginationMeta;
 }
 
+function normalizePagination(
+  response: Partial<{ meta: PaginationMeta; pagination: PaginationMeta }>,
+): PaginationMeta {
+  return response.meta ?? response.pagination ?? { total: 0, page: 1, limit: 20, totalPages: 1 };
+}
+
 /**
  * Generic, typed helpers for /admin/* CRUD endpoints.
  * Every admin entity page (leagues, predictions, users, coupons, blog posts, etc.)
@@ -28,9 +34,17 @@ export async function adminList<T>(
   params: AdminListParams = {},
 ): Promise<AdminListResponse<T>> {
   const { data } = await apiClient.get<
-    ApiResponse<T[]> & { meta: PaginationMeta }
+    ApiResponse<T[]> & {
+      items?: T[];
+      meta?: PaginationMeta;
+      pagination?: PaginationMeta;
+    }
   >(`/admin/${resource}`, { params });
-  return { data: data.data, meta: data.meta };
+
+  return {
+    data: Array.isArray(data.data) ? data.data : data.items ?? [],
+    meta: normalizePagination(data),
+  };
 }
 
 export async function adminGet<T>(resource: string, id: string): Promise<T> {

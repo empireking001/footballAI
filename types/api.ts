@@ -64,6 +64,16 @@ export interface Match {
     homeHalfTime?: number;
     awayHalfTime?: number;
   };
+  odds?: {
+    home?: number;
+    draw?: number;
+    away?: number;
+    over25?: number;
+    under25?: number;
+    bttsYes?: number;
+    bttsNo?: number;
+    lastUpdatedAt?: string;
+  };
 }
 
 export interface MarketOutcome {
@@ -77,10 +87,25 @@ export interface MarketOutcome {
 export type RiskRating = "low" | "medium" | "high";
 export type PredictionTier = "free" | "vip";
 
+export interface MatchFormItem {
+  matchId: string;
+  kickoffAt: string;
+  result: "W" | "D" | "L" | "N";
+  score: string;
+  opponent: Team;
+}
+
+export interface MatchContext {
+  standings: Standing[];
+  form: { home: MatchFormItem[]; away: MatchFormItem[] };
+  headToHead: Match[];
+}
+
 export interface Prediction {
   _id: string;
   match: Match;
   tier: PredictionTier;
+  isFeatured?: boolean;
   confidenceScore: number;
   riskRating: RiskRating;
   markets: MarketOutcome[];
@@ -88,6 +113,7 @@ export interface Prediction {
   aiExplanation: string;
   historicalComparison?: string;
   modelVersion: string;
+  context?: MatchContext;
 }
 
 export interface BlogPostSummary {
