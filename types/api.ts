@@ -89,6 +89,20 @@ export interface MarketOutcome {
 export type RiskRating = "low" | "medium" | "high";
 export type PredictionTier = "free" | "vip";
 
+export interface MatchFormItem {
+  matchId: string;
+  kickoffAt: string;
+  result: "W" | "D" | "L" | "N";
+  score: string;
+  opponent: Team;
+}
+
+export interface MatchContext {
+  standings: Standing[];
+  form: { home: MatchFormItem[]; away: MatchFormItem[] };
+  headToHead: Match[];
+}
+
 export interface Prediction {
   _id: string;
   match: Match;
@@ -101,6 +115,7 @@ export interface Prediction {
   aiExplanation: string;
   historicalComparison?: string;
   modelVersion: string;
+  context?: MatchContext;
 }
 
 export type FixtureFeedState = 'pending' | 'available' | 'live';

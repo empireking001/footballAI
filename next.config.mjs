@@ -4,7 +4,6 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "**.api-sports.io" },
       { protocol: "https", hostname: "crests.football-data.org" },
     ],
   },
