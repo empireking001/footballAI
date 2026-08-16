@@ -1,11 +1,15 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Clock3, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { MatchBreakdown } from '@/components/predictions/MatchBreakdown';
 import { VipLockedMatch } from '@/components/predictions/VipLockedMatch';
 import { fetchApi } from '@/lib/api/server';
-import { Prediction } from '@/types/api';
+import { Match, Prediction } from '@/types/api';
+import { formatKickoff } from '@/lib/utils';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -15,15 +19,18 @@ async function getPrediction(matchId: string) {
   return fetchApi<Prediction>(`/predictions/match/${matchId}`, { revalidate: 60 });
 }
 
+async function getMatch(matchId: string) {
+  return fetchApi<Match>(`/matches/${matchId}`, { revalidate: 60 });
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const { data } = await getPrediction(id);
-  if (!data) return { title: 'Match prediction' };
-
-  const title = `${data.match.homeTeam.name} vs ${data.match.awayTeam.name} Prediction`;
+  const [{ data: prediction }, { data: match }] = await Promise.all([getPrediction(id), getMatch(id)]);
+  const subject = prediction?.match ?? match;
+  if (!subject) return { title: 'Match centre' };
   return {
-    title,
-    description: `AI prediction for ${data.match.homeTeam.name} vs ${data.match.awayTeam.name}: ${data.confidenceScore}% confidence, ${data.riskRating} risk. ${data.aiExplanation.slice(0, 140)}`,
+    title: `${subject.homeTeam.name} vs ${subject.awayTeam.name} | Football AI`,
+    description: prediction ? `AI prediction and match context for ${subject.homeTeam.name} vs ${subject.awayTeam.name}.` : `Upcoming fixture centre for ${subject.homeTeam.name} vs ${subject.awayTeam.name}.`,
   };
 }
 
@@ -31,25 +38,25 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const { id } = await params;
   const { data, status } = await getPrediction(id);
 
-  if (status === 403) {
-    return <VipLockedMatch matchId={id} />;
+  if (status === 403) return <VipLockedMatch matchId={id} />;
+  if (data) return <MatchBreakdown prediction={data} />;
+
+  const { data: match } = await getMatch(id);
+  if (!match) {
+    return <Container className="flex flex-col items-center gap-4 py-24 text-center"><h1 className="font-display text-2xl font-bold uppercase tracking-tight">Match not found</h1><p className="max-w-sm text-sm text-muted">This fixture is no longer available in the current feed.</p><Button variant="secondary" asChild><Link href="/predictions/week">Browse the week</Link></Button></Container>;
   }
 
-  if (!data) {
-    return (
-      <Container className="flex flex-col items-center gap-4 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold uppercase tracking-tight">
-          No prediction yet
-        </h1>
-        <p className="max-w-sm text-sm text-muted">
-          This match doesn&apos;t have a prediction generated yet — check back closer to kickoff.
-        </p>
-        <Button variant="secondary" asChild>
-          <Link href="/predictions/today">Browse today&apos;s predictions</Link>
-        </Button>
+  return (
+    <>
+      <div className="border-b border-border bg-surface/50 py-12 sm:py-16">
+        <Container>
+          <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted">{match.league.name} · {formatKickoff(match.kickoffAt)}</span><Badge variant="default"><Clock3 className="mr-1 h-3 w-3" />Analysis pending</Badge></div>
+          <div className="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-6 text-center"><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated text-sm font-bold text-muted">{match.homeTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.homeTeam.name}</p></div><span className="font-display text-xl text-muted">VS</span><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated text-sm font-bold text-muted">{match.awayTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.awayTeam.name}</p></div></div>
+        </Container>
+      </div>
+      <Container className="py-10 sm:py-12">
+        <Card className="mx-auto max-w-2xl border-primary/25 bg-primary/[0.04]"><CardContent className="p-7 text-center sm:p-10"><Sparkles className="mx-auto h-7 w-7 text-primary" /><h1 className="mt-4 font-display text-2xl font-bold uppercase tracking-tight">Football AI is preparing this match</h1><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-muted">The fixture is confirmed. The statistical model will publish its prediction and supporting explanation automatically. Check back before kickoff.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Button asChild><Link href="/predictions/today">Today’s fixtures</Link></Button><Button variant="secondary" asChild><Link href="/predictions/week">Next 7 days</Link></Button></div></CardContent></Card>
       </Container>
-    );
-  }
-
-  return <MatchBreakdown prediction={data} />;
+    </>
+  );
 }

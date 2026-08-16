@@ -6,6 +6,7 @@ import { MarketBar } from '@/components/predictions/MarketBar';
 import { Container } from '@/components/ui/Container';
 import { formatKickoff } from '@/lib/utils';
 import { MatchFormItem, Prediction } from '@/types/api';
+import { MatchAssistant } from '@/components/predictions/MatchAssistant';
 
 function TeamCrest({ name, logoUrl, size = 64 }: { name: string; logoUrl?: string; size?: number }) {
   return (
@@ -72,7 +73,16 @@ function OddsTable({ prediction }: { prediction: Prediction }) {
     ['Under 2.5', odds?.under25],
   ] as const;
   const available = rows.filter(([, value]) => value !== undefined);
-  if (available.length === 0) return null;
+  if (available.length === 0) {
+    return (
+      <Card>
+        <CardContent className="pt-5">
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">Odds comparison</h2>
+          <p className="mt-3 text-sm leading-6 text-muted">Odds are not available for this fixture yet. The prediction still uses team, form, standings, and competition data.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -169,6 +179,8 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
               )}
             </CardContent>
           </Card>
+
+          <MatchAssistant prediction={prediction} />
 
           <Card>
             <CardContent className="pt-5">

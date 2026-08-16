@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -12,6 +12,37 @@ import { adminList } from "@/lib/api/admin";
 import { apiClient } from "@/lib/api/client";
 import { formatKickoff } from "@/lib/utils";
 import { Prediction, PredictionTier } from "@/types/api";
+
+function BackfillPanel() {
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async () => (await apiClient.post('/admin/predictions/backfill', { days: 7, limit: 200 })).data,
+    onSuccess: (response) => {
+      setError(false);
+      setMessage(response.message ?? 'Prediction backfill completed.');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'predictions'] });
+    },
+    onError: (err) => {
+      setError(true);
+      setMessage(err instanceof Error ? err.message : 'Backfill failed.');
+    },
+  });
+
+  return (
+    <Card className="mb-5 border-primary/25 bg-primary/[0.04]">
+      <CardContent className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-base font-bold uppercase tracking-tight">Recover missing predictions</h2>
+          <p className="mt-1 text-sm leading-6 text-muted">Scan the next seven days and generate only the predictions that do not exist yet.</p>
+          {message && <p className={`mt-2 text-xs ${error ? 'text-danger' : 'text-live'}`}>{message}</p>}
+        </div>
+        <Button onClick={() => mutation.mutate()} disabled={mutation.isPending} className="shrink-0">{mutation.isPending ? 'Generating…' : 'Backfill predictions'}</Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AdminPredictionsPage() {
   const [page, setPage] = useState(1);
@@ -137,6 +168,7 @@ export default function AdminPredictionsPage() {
         title="Featured predictions"
         subtitle="Curation-only view. Predictions are generated automatically; use this page to select, tier, and refine what users see over the next seven days."
       />
+      <BackfillPanel />
       <Card className="mb-5 border-primary/20 bg-primary/5">
         <CardContent className="pt-5 text-sm text-muted">
           Leagues, teams, fixtures, predictions, odds, and accuracy jobs run automatically. This is the only daily prediction management surface.

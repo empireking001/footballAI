@@ -12,10 +12,11 @@ import { useAuthStore } from "@/store/authStore";
 const NAV_LINKS = [
   { label: "Today", href: "/predictions/today" },
   { label: "Tomorrow", href: "/predictions/tomorrow" },
+  { label: "Next 7 days", href: "/predictions/week" },
   { label: "Live", href: "/live" },
   { label: "VIP", href: "/predictions/vip" },
   { label: "Leagues", href: "/leagues" },
-  { label: "Blog", href: "/blog" },
+  { label: "Insights", href: "/blog" },
   { label: "Pricing", href: "/pricing" },
 ];
 

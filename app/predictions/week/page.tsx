@@ -6,27 +6,27 @@ import { fetchApi } from '@/lib/api/server';
 import { FixtureFeedItem } from '@/types/api';
 
 export const metadata: Metadata = {
-  title: "Today's Football Predictions",
-  description: 'Today’s fixtures, AI predictions, live states, and analysis readiness.',
+  title: 'Next 7 Days of Football',
+  description: 'Browse upcoming fixtures and AI analysis across the next seven days.',
 };
 
-export default async function TodayPredictionsPage() {
-  const { data, error } = await fetchApi<FixtureFeedItem[]>('/predictions/feed?when=today&limit=50', {
+export default async function WeekPredictionsPage() {
+  const { data, error } = await fetchApi<FixtureFeedItem[]>('/predictions/feed?when=week&limit=100', {
     revalidate: 60,
-    tags: ['fixtures', 'predictions-today'],
+    tags: ['fixtures', 'predictions-week'],
   });
 
   return (
     <>
       <PredictionsPageHeader
-        eyebrow="Match centre"
-        title="Today’s fixtures"
-        subtitle="See every match first. AI analysis appears as soon as the model finishes processing the fixture."
+        eyebrow="The fixture board"
+        title="Next 7 days"
+        subtitle="Plan the week ahead. Every covered fixture stays visible while AI analysis is generated."
       />
       <Container className="py-10 sm:py-12">
-        <DateNav active="today" />
+        <DateNav active="week" />
         {error ? <div className="mb-6 rounded-lg border border-danger/30 bg-danger/5 p-4 text-sm text-danger">The match feed is temporarily unavailable. Please refresh in a moment.</div> : null}
-        <FixtureFeed items={data ?? []} emptyMessage="No fixtures are scheduled for today in the covered competitions." />
+        <FixtureFeed items={data ?? []} emptyMessage="No fixtures are scheduled in the next seven days." />
       </Container>
     </>
   );

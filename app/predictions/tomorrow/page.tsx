@@ -1,33 +1,32 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { PredictionsPageHeader } from '@/components/predictions/PageHeader';
-import { PredictionsGrid } from '@/components/predictions/PredictionsGrid';
+import { DateNav, FixtureFeed } from '@/components/predictions/FixtureFeed';
 import { fetchApi } from '@/lib/api/server';
-import { Prediction } from '@/types/api';
+import { FixtureFeedItem } from '@/types/api';
 
 export const metadata: Metadata = {
-  title: "Tomorrow's Football Predictions",
-  description: 'AI-generated football predictions for every match kicking off tomorrow.',
+  title: "Tomorrow’s Football Predictions",
+  description: 'Tomorrow’s fixtures, AI predictions, live states, and analysis readiness.',
 };
 
 export default async function TomorrowPredictionsPage() {
-  const { data } = await fetchApi<Prediction[]>('/predictions?when=tomorrow&limit=50', {
-    revalidate: 300,
-    tags: ['predictions', 'predictions-tomorrow'],
+  const { data, error } = await fetchApi<FixtureFeedItem[]>('/predictions/feed?when=tomorrow&limit=50', {
+    revalidate: 60,
+    tags: ['fixtures', 'predictions-tomorrow'],
   });
 
   return (
     <>
       <PredictionsPageHeader
-        eyebrow="Tomorrow"
-        title="Tomorrow's Predictions"
-        subtitle="Get ahead of kickoff — free predictions for tomorrow's fixtures."
+        eyebrow="Plan ahead"
+        title="Tomorrow’s fixtures"
+        subtitle="Get ahead of kickoff with upcoming matches and clear AI analysis readiness."
       />
       <Container className="py-10 sm:py-12">
-        <PredictionsGrid
-          predictions={data ?? []}
-          emptyMessage="No predictions for tomorrow's fixtures yet — they're generated automatically each night."
-        />
+        <DateNav active="tomorrow" />
+        {error ? <div className="mb-6 rounded-lg border border-danger/30 bg-danger/5 p-4 text-sm text-danger">The match feed is temporarily unavailable. Please refresh in a moment.</div> : null}
+        <FixtureFeed items={data ?? []} emptyMessage="No fixtures are scheduled for tomorrow in the covered competitions." />
       </Container>
     </>
   );
