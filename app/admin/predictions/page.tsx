@@ -11,7 +11,38 @@ import { Button } from "@/components/ui/Button";
 import { adminList } from "@/lib/api/admin";
 import { apiClient } from "@/lib/api/client";
 import { formatKickoff } from "@/lib/utils";
-import { Prediction, PredictionTier } from "@/types/api";
+import { Prediction, PredictionTier, SiteSettings } from "@/types/api";
+
+function SyncStatusCard() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'sync-status'],
+    queryFn: async () => (await apiClient.get<{ data: SiteSettings }>('/settings')).data.data,
+    staleTime: 60 * 1000,
+  });
+
+  const timestamp = (value?: string) => value ? new Date(value).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) : 'Not recorded yet';
+  const liveAt = data?.dataSync?.liveScoresLastSyncedAt;
+  const liveFresh = liveAt ? Date.now() - new Date(liveAt).getTime() < 5 * 60 * 1000 : false;
+
+  return (
+    <Card className="mb-5 border-border bg-surface/50">
+      <CardContent className="pt-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-base font-bold uppercase tracking-tight">Data operations</h2>
+            <p className="mt-1 text-sm text-muted">Live scores require the football-data.org key in the production environment.</p>
+          </div>
+          <Badge variant={liveFresh ? 'live' : 'risk-high'}>{liveFresh ? 'Live sync healthy' : 'Live sync needs attention'}</Badge>
+        </div>
+        <div className="mt-4 grid gap-3 text-xs text-muted sm:grid-cols-3">
+          <div><span className="font-semibold text-foreground">Live scores</span><br />{isLoading ? 'Loading…' : timestamp(liveAt)}</div>
+          <div><span className="font-semibold text-foreground">Fixtures</span><br />{isLoading ? 'Loading…' : timestamp(data?.dataSync?.fixturesLastSyncedAt)}</div>
+          <div><span className="font-semibold text-foreground">Standings</span><br />{isLoading ? 'Loading…' : timestamp(data?.dataSync?.standingsLastSyncedAt)}</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function BackfillPanel() {
   const [message, setMessage] = useState<string | null>(null);
@@ -169,6 +200,7 @@ export default function AdminPredictionsPage() {
         subtitle="Curation-only view. Predictions are generated automatically; use this page to select, tier, and refine what users see over the next seven days."
       />
       <BackfillPanel />
+      <SyncStatusCard />
       <Card className="mb-5 border-primary/20 bg-primary/5">
         <CardContent className="pt-5 text-sm text-muted">
           Leagues, teams, fixtures, predictions, odds, and accuracy jobs run automatically. This is the only daily prediction management surface.

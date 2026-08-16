@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Clock3, Sparkles } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -10,6 +11,7 @@ import { VipLockedMatch } from '@/components/predictions/VipLockedMatch';
 import { fetchApi } from '@/lib/api/server';
 import { Match, Prediction } from '@/types/api';
 import { formatKickoff } from '@/lib/utils';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -50,8 +52,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
     <>
       <div className="border-b border-border bg-surface/50 py-12 sm:py-16">
         <Container>
+          <AdBanner slotId="match-top" className="mb-6" />
           <div className="flex items-center justify-between gap-3"><span className="text-sm text-muted">{match.league.name} · {formatKickoff(match.kickoffAt)}</span><Badge variant="default"><Clock3 className="mr-1 h-3 w-3" />Analysis pending</Badge></div>
-          <div className="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-6 text-center"><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated text-sm font-bold text-muted">{match.homeTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.homeTeam.name}</p></div><span className="font-display text-xl text-muted">VS</span><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated text-sm font-bold text-muted">{match.awayTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.awayTeam.name}</p></div></div>
+          <div className="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-6 text-center"><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated p-3 text-sm font-bold text-muted">{match.homeTeam.logoUrl ? <Image src={match.homeTeam.logoUrl} alt="" width={64} height={64} className="h-full w-full object-contain" /> : match.homeTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.homeTeam.name}</p></div><span className="font-display text-xl text-muted">VS</span><div className="flex-1"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated p-3 text-sm font-bold text-muted">{match.awayTeam.logoUrl ? <Image src={match.awayTeam.logoUrl} alt="" width={64} height={64} className="h-full w-full object-contain" /> : match.awayTeam.name.slice(0, 2).toUpperCase()}</div><p className="mt-3 text-sm font-semibold text-foreground">{match.awayTeam.name}</p></div></div>
         </Container>
       </div>
       <Container className="py-10 sm:py-12">

@@ -1,9 +1,11 @@
 import { Container } from '@/components/ui/Container';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 export function PredictionsPageHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
   return (
     <div className="border-b border-border bg-surface/50 py-10 sm:py-12">
       <Container>
+        <AdBanner slotId="predictions-top" className="mb-6" />
         <span className="font-mono text-xs uppercase tracking-widest text-primary">{eyebrow}</span>
         <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight sm:text-4xl">
           {title}

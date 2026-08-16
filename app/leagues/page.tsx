@@ -3,6 +3,7 @@ import { Container } from '@/components/ui/Container';
 import { LeagueCard } from '@/components/leagues/LeagueCard';
 import { fetchApi } from '@/lib/api/server';
 import { League } from '@/types/api';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 export const metadata: Metadata = {
   title: 'Leagues',
@@ -28,6 +29,7 @@ export default async function LeaguesPage() {
       </div>
 
       <Container className="py-10 sm:py-12">
+        <AdBanner slotId="leagues-top" className="mb-8" />
         {leagues.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {leagues.map((league) => (

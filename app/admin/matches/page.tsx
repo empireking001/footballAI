@@ -71,7 +71,7 @@ export default function AdminMatchesPage() {
     <div>
       <AdminPageHeader
         title="Matches"
-        subtitle="Read-only verification. Fixtures, scores, and odds are maintained automatically; no manual sync or edit controls are available here."
+        subtitle="Filter every fixture by status, open any match to edit its score and attached prediction, and let the automated pipeline handle provider synchronization."
       />
       <div className="mb-4 flex gap-2 overflow-x-auto">
         {STATUS_OPTIONS.map((option) => (

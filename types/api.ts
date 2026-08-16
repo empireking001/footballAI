@@ -146,6 +146,20 @@ export interface Announcement {
   type: "info" | "success" | "warning" | "promo";
 }
 
+export interface AdSlot {
+  slotId: string;
+  label: string;
+  code: string;
+  isEnabled: boolean;
+}
+
+export interface DataSyncStatus {
+  liveScoresLastSyncedAt?: string;
+  fixturesLastSyncedAt?: string;
+  standingsLastSyncedAt?: string;
+  lastError?: string;
+}
+
 export interface SiteSettings {
   siteName: string;
   logoUrl?: string;
@@ -168,6 +182,8 @@ export interface SiteSettings {
     message?: string;
     linkUrl?: string;
   };
+  adSlots?: AdSlot[];
+  dataSync?: DataSyncStatus;
 }
 
 export interface Coupon {
