@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -18,6 +19,11 @@ export default function AdminLeaguesPage() {
   });
 
   const columns: Column<League>[] = [
+    {
+      key: "logoUrl",
+      label: "Logo",
+      render: (league) => league.logoUrl ? <Image src={league.logoUrl} alt="" width={32} height={32} className="h-8 w-8 object-contain" /> : <span className="text-xs text-muted">—</span>,
+    },
     { key: "name", label: "Name" },
     { key: "country", label: "Country" },
     { key: "season", label: "Season" },

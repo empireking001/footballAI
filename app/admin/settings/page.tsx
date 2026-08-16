@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { apiClient } from '@/lib/api/client';
+import { AdSlot } from '@/types/api';
 
 interface SettingsFormValues {
   siteName: string;
@@ -28,10 +29,18 @@ interface SettingsFormValues {
   maintenanceMessage: string;
 }
 
+const DEFAULT_AD_SLOTS: AdSlot[] = [
+  { slotId: 'global-top', label: 'Global top banner', code: '', isEnabled: false },
+  { slotId: 'predictions-top', label: 'Predictions page banner', code: '', isEnabled: false },
+  { slotId: 'match-top', label: 'Match page banner', code: '', isEnabled: false },
+  { slotId: 'leagues-top', label: 'Leagues page banner', code: '', isEnabled: false },
+];
+
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [adSlots, setAdSlots] = useState<AdSlot[]>(DEFAULT_AD_SLOTS);
 
   const { register, handleSubmit, reset } = useForm<SettingsFormValues>();
 
@@ -56,6 +65,7 @@ export default function AdminSettingsPage() {
         maintenanceEnabled: s.maintenanceMode?.isEnabled ?? false,
         maintenanceMessage: s.maintenanceMode?.message ?? '',
       });
+      setAdSlots(s.adSlots?.length ? s.adSlots : DEFAULT_AD_SLOTS);
       setLoading(false);
     });
   }, [reset]);
@@ -77,12 +87,21 @@ export default function AdminSettingsPage() {
         seoDefaults: { metaTitle: values.metaTitle, metaDescription: values.metaDescription },
         announcementBanner: { isEnabled: values.announcementEnabled, message: values.announcementMessage },
         maintenanceMode: { isEnabled: values.maintenanceEnabled, message: values.maintenanceMessage },
+        adSlots: adSlots.map((slot) => ({ ...slot, slotId: slot.slotId.trim(), label: slot.label.trim() })),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {
       setSaving(false);
     }
+  }
+
+  function updateAdSlot(index: number, patch: Partial<AdSlot>) {
+    setAdSlots((current) => current.map((slot, slotIndex) => (slotIndex === index ? { ...slot, ...patch } : slot)));
+  }
+
+  function removeAdSlot(index: number) {
+    setAdSlots((current) => current.filter((_, slotIndex) => slotIndex !== index));
   }
 
   if (loading) {
@@ -100,7 +119,7 @@ export default function AdminSettingsPage() {
         subtitle="Changes here reflect across the public site immediately (cache clears on save)."
       />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-2xl flex-col gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-3xl flex-col gap-6">
         <Card>
           <CardContent className="flex flex-col gap-4 pt-5">
             <h2 className="font-display text-lg font-bold uppercase tracking-tight">General</h2>
@@ -134,6 +153,39 @@ export default function AdminSettingsPage() {
             <h2 className="font-display text-lg font-bold uppercase tracking-tight">SEO defaults</h2>
             <Input label="Meta title" {...register('metaTitle')} />
             <Input label="Meta description" {...register('metaDescription')} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-4 pt-5">
+            <div>
+              <h2 className="font-display text-lg font-bold uppercase tracking-tight">Advertising</h2>
+              <p className="mt-1 text-sm leading-6 text-muted">Paste the exact HTML or script supplied by your ad network. Enable a slot only after its code and placement have been checked.</p>
+            </div>
+            <div className="flex flex-col gap-4">
+              {adSlots.map((slot, index) => (
+                <div key={`${slot.slotId}-${index}`} className="rounded-lg border border-border bg-surface/50 p-4">
+                  <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                    <Input label="Slot ID" value={slot.slotId} onChange={(event) => updateAdSlot(index, { slotId: event.target.value })} />
+                    <Input label="Label" value={slot.label} onChange={(event) => updateAdSlot(index, { label: event.target.value })} />
+                    <Button type="button" variant="secondary" onClick={() => removeAdSlot(index)} aria-label={`Remove ${slot.label}`}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <label className="mt-3 flex items-center gap-2 text-sm text-foreground">
+                    <input type="checkbox" checked={slot.isEnabled} onChange={(event) => updateAdSlot(index, { isEnabled: event.target.checked })} className="h-4 w-4 rounded border-border" />
+                    Enable this ad slot
+                  </label>
+                  <label className="mt-3 block text-sm font-medium text-foreground">
+                    Raw HTML / script code
+                    <textarea value={slot.code} onChange={(event) => updateAdSlot(index, { code: event.target.value })} rows={6} className="mt-1 w-full rounded-md border border-border bg-surface-elevated px-3 py-2 font-mono text-xs text-foreground outline-none focus:border-primary" placeholder="<script>...</script>" />
+                  </label>
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="secondary" onClick={() => setAdSlots((current) => [...current, { slotId: `custom-${current.length + 1}`, label: 'Custom ad slot', code: '', isEnabled: false }])} className="w-fit">
+              <Plus className="mr-2 h-4 w-4" /> Add ad slot
+            </Button>
           </CardContent>
         </Card>
 

@@ -9,6 +9,7 @@ import { MatchBreakdown } from '@/components/predictions/MatchBreakdown';
 import { apiClient } from '@/lib/api/client';
 import { useAuthStore } from '@/store/authStore';
 import { Prediction } from '@/types/api';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 /**
  * Rendered when the server-side fetch for a match's prediction came back
@@ -41,7 +42,8 @@ export function VipLockedMatch({ matchId }: { matchId: string }) {
   if (data) return <MatchBreakdown prediction={data} />;
 
   return (
-    <Container className="flex justify-center py-20">
+    <Container className="flex flex-col items-center gap-8 py-20">
+      <AdBanner slotId="match-top" className="w-full max-w-2xl" />
       <div className="max-w-md rounded-xl border border-vip/30 bg-vip/5 p-8 text-center">
         <Lock className="mx-auto h-8 w-8 text-vip" />
         <h1 className="mt-4 font-display text-xl font-bold uppercase tracking-tight">

@@ -7,6 +7,7 @@ import { Container } from '@/components/ui/Container';
 import { formatKickoff } from '@/lib/utils';
 import { MatchFormItem, Prediction } from '@/types/api';
 import { MatchAssistant } from '@/components/predictions/MatchAssistant';
+import { AdBanner } from '@/components/ads/AdBanner';
 
 function TeamCrest({ name, logoUrl, size = 64 }: { name: string; logoUrl?: string; size?: number }) {
   return (
@@ -115,8 +116,12 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
     <>
       <div className="border-b border-border bg-surface/50 py-10 sm:py-12">
         <Container>
+          <AdBanner slotId="match-top" className="mb-6" />
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-sm font-medium text-muted">{match.league.name} · {formatKickoff(match.kickoffAt)}</span>
+            <div className="flex items-center gap-2 text-sm font-medium text-muted">
+              {match.league.logoUrl && <Image src={match.league.logoUrl} alt="" width={24} height={24} className="h-6 w-6 object-contain" />}
+              <span>{match.league.name} · {formatKickoff(match.kickoffAt)}</span>
+            </div>
             <div className="flex gap-2">
               {prediction.tier === 'vip' && <Badge variant="vip">VIP</Badge>}
               <Badge variant={`risk-${prediction.riskRating}`}>{prediction.riskRating} risk</Badge>
