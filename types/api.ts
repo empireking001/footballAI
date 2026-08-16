@@ -50,6 +50,17 @@ export type MatchStatus =
   | "cancelled"
   | "suspended";
 
+export interface MatchOdds {
+  home?: number;
+  draw?: number;
+  away?: number;
+  over25?: number;
+  under25?: number;
+  bttsYes?: number;
+  bttsNo?: number;
+  lastUpdatedAt?: string;
+}
+
 export interface Match {
   _id: string;
   league: League;
@@ -64,6 +75,7 @@ export interface Match {
     homeHalfTime?: number;
     awayHalfTime?: number;
   };
+  odds?: MatchOdds;
 }
 
 export interface MarketOutcome {
@@ -81,6 +93,7 @@ export interface Prediction {
   _id: string;
   match: Match;
   tier: PredictionTier;
+  isFeatured?: boolean;
   confidenceScore: number;
   riskRating: RiskRating;
   markets: MarketOutcome[];
@@ -88,6 +101,15 @@ export interface Prediction {
   aiExplanation: string;
   historicalComparison?: string;
   modelVersion: string;
+}
+
+export type FixtureFeedState = 'pending' | 'available' | 'live';
+
+export interface FixtureFeedItem {
+  match: Match;
+  prediction: Prediction | null;
+  state: FixtureFeedState;
+  isVipLocked: boolean;
 }
 
 export interface BlogPostSummary {

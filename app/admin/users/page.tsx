@@ -81,9 +81,21 @@ export default function AdminUsersPage() {
       key: "subscriptionTier",
       label: "Tier",
       render: (u) => (
-        <Badge variant={u.subscriptionTier === "vip" ? "vip" : "default"}>
-          {u.subscriptionTier}
-        </Badge>
+        <select
+          aria-label={`Change ${u.name} subscription tier`}
+          value={u.subscriptionTier}
+          disabled={u._id === currentUser?.id || updateMutation.isPending}
+          onChange={(e) =>
+            updateMutation.mutate({
+              id: u._id,
+              body: { subscriptionTier: e.target.value as User["subscriptionTier"] },
+            })
+          }
+          className="rounded-md border border-border bg-surface-elevated px-2 py-1 text-xs font-semibold text-foreground disabled:opacity-50"
+        >
+          <option value="free">Free</option>
+          <option value="vip">VIP / Pro</option>
+        </select>
       ),
     },
     {

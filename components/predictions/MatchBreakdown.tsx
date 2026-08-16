@@ -6,6 +6,7 @@ import { MarketBar } from '@/components/predictions/MarketBar';
 import { Container } from '@/components/ui/Container';
 import { formatKickoff } from '@/lib/utils';
 import { Prediction } from '@/types/api';
+import { MatchAssistant } from '@/components/predictions/MatchAssistant';
 
 function TeamCrest({ name, logoUrl, size = 64 }: { name: string; logoUrl?: string; size?: number }) {
   return (
@@ -84,6 +85,8 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
             </CardContent>
           </Card>
 
+          <MatchAssistant prediction={prediction} />
+
           <Card>
             <CardContent className="pt-5">
               <h2 className="font-display text-lg font-bold uppercase tracking-tight">Key factors</h2>
@@ -151,6 +154,18 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
                   </li>
                 ))}
               </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-5">
+              <h2 className="font-display text-lg font-bold uppercase tracking-tight">Market context</h2>
+              {match.odds?.home || match.odds?.draw || match.odds?.away ? (
+                <>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-md border border-border p-2"><span className="block text-muted">Home</span><strong className="mt-1 block font-mono text-foreground">{match.odds.home ?? '—'}</strong></div><div className="rounded-md border border-border p-2"><span className="block text-muted">Draw</span><strong className="mt-1 block font-mono text-foreground">{match.odds.draw ?? '—'}</strong></div><div className="rounded-md border border-border p-2"><span className="block text-muted">Away</span><strong className="mt-1 block font-mono text-foreground">{match.odds.away ?? '—'}</strong></div></div>
+                  <p className="mt-3 text-[11px] text-muted">Last synced {match.odds.lastUpdatedAt ? new Date(match.odds.lastUpdatedAt).toLocaleString() : 'recently'}. Market prices move; they are context, not advice.</p>
+                </>
+              ) : <p className="mt-3 text-sm leading-6 text-muted">Odds are not available for this fixture yet. The prediction remains usable because the model also uses team and competition data.</p>}
             </CardContent>
           </Card>
 

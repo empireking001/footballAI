@@ -1,7 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, ArrowRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { LiveMatchCard } from '@/components/matches/LiveMatchCard';
 import { apiClient } from '@/lib/api/client';
@@ -50,8 +51,10 @@ export default function LiveMatchesPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-border p-12 text-center text-sm text-muted">
-            No matches live right now — check today&apos;s fixtures for upcoming kickoffs.
+          <div className="rounded-xl border border-dashed border-border p-10 text-center">
+            <p className="text-sm font-semibold text-foreground">No matches are live right now.</p>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">Live status depends on the provider’s latest score sync. Browse the fixture board for the next kickoffs while you wait.</p>
+            <div className="mt-5 flex justify-center gap-3"><Link href="/predictions/today" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground">Today <ArrowRight className="h-4 w-4" /></Link><Link href="/predictions/week" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground">Next 7 days</Link></div>
           </div>
         )}
       </Container>
