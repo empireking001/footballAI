@@ -5,6 +5,8 @@ import { QueryProvider } from '@/lib/query-provider';
 import { AuthInitializer } from '@/components/providers/AuthInitializer';
 import { CookieConsent } from '@/components/layout/CookieConsent';
 import { AdBanner } from '@/components/ads/AdBanner';
+import { fetchApi } from '@/lib/api/server';
+import { SiteSettings } from '@/types/api';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,7 +18,10 @@ export const metadata: Metadata = {
     'AI-powered football predictions, match analysis, and statistics — 1X2, BTTS, Over/Under, correct score, and more, backed by a statistical model with a tracked accuracy record.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { data: settings } = await fetchApi<SiteSettings>('/settings', { cache: 'no-store' });
+  const siteName = settings?.siteName?.trim() || 'Football AI';
+
   return (
     <html lang="en">
       <body>
@@ -24,10 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthInitializer />
           <CookieConsent />
           <div className="flex min-h-screen flex-col">
-            <Header />
+            <Header siteName={siteName} logoUrl={settings?.logoUrl} />
             <AdBanner slotId="global-top" className="mx-auto w-full max-w-7xl px-4 pt-4" />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <Footer siteName={siteName} />
           </div>
         </QueryProvider>
       </body>

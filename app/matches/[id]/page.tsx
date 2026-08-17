@@ -26,7 +26,7 @@ async function getMatch(matchId: string) {
 }
 
 async function getPublicSettings() {
-  return fetchApi<SiteSettings>('/settings', { revalidate: 300 });
+  return fetchApi<SiteSettings>('/settings', { cache: 'no-store' });
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -105,7 +105,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           riskRating: predictionQuery.data.riskRating,
           aiExplanation: predictionQuery.data.aiExplanation,
           historicalComparison: predictionQuery.data.historicalComparison ?? '',
-          keyFactorsText: predictionQuery.data.keyFactors.join('\\n'),
+          keyFactorsText: predictionQuery.data.keyFactors.join('\n'),
           markets: predictionQuery.data.markets.map((market) => ({
             market: market.market,
             selection: market.selection,
@@ -153,7 +153,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       riskRating: values.riskRating,
       aiExplanation: values.aiExplanation.trim(),
       historicalComparison: values.historicalComparison.trim() || undefined,
-      keyFactors: values.keyFactorsText.split('\\n').map((factor) => factor.trim()).filter(Boolean),
+      keyFactors: values.keyFactorsText.split('\n').map((factor) => factor.trim()).filter(Boolean),
       markets,
     };
 
