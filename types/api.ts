@@ -88,6 +88,16 @@ export interface MarketOutcome {
 
 export type RiskRating = "low" | "medium" | "high";
 export type PredictionTier = "free" | "vip";
+export type AiAudience = "free" | "vip" | "both";
+
+export interface AiSettings {
+  isEnabled: boolean;
+  audience: AiAudience;
+  showConfidence: boolean;
+  showMarkets: boolean;
+  showExplanation: boolean;
+  showAssistant: boolean;
+}
 
 export interface MatchFormItem {
   matchId: string;
@@ -125,6 +135,9 @@ export interface FixtureFeedItem {
   prediction: Prediction | null;
   state: FixtureFeedState;
   isVipLocked: boolean;
+  isAiUnavailable?: boolean;
+  aiUnavailableReason?: 'disabled' | 'audience';
+  ai?: AiSettings;
 }
 
 export interface BlogPostSummary {
@@ -183,6 +196,7 @@ export interface SiteSettings {
     linkUrl?: string;
   };
   adSlots?: AdSlot[];
+  ai?: AiSettings;
   dataSync?: DataSyncStatus;
 }
 
