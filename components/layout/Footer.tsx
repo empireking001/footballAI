@@ -51,7 +51,7 @@ const SOCIAL_LINKS = [
   { icon: MessageCircle, href: 'https://wa.me', label: 'WhatsApp' },
 ];
 
-export function Footer() {
+export function Footer({ siteName = 'Football AI' }: { siteName?: string }) {
   return (
     <footer className="border-t border-border bg-surface">
       <Container className="py-14">
@@ -79,9 +79,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="font-display text-lg font-bold text-foreground">
-              FOOTBALL<span className="text-primary">AI</span>
-            </span>
+              <span className="font-display text-lg font-bold text-foreground">{siteName}</span>
             <span className="text-xs text-muted">
               &copy; {new Date().getFullYear()} All rights reserved.
             </span>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const { data: settings } = await fetchApi<SiteSettings>("/settings", {
-    revalidate: 300,
+    cache: 'no-store',
   });
 
   return (

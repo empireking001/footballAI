@@ -21,7 +21,7 @@ const NAV_LINKS = [
   { label: "Pricing", href: "/pricing" },
 ];
 
-export function Header() {
+export function Header({ siteName = 'Football AI', logoUrl }: { siteName?: string; logoUrl?: string }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
 
@@ -29,9 +29,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-            FOOTBALL<span className="text-primary">AI</span>
-          </span>
+          {logoUrl ? <img src={logoUrl} alt={siteName} className="h-8 w-auto object-contain" /> : <span className="font-display text-2xl font-bold tracking-tight text-foreground">{siteName}</span>}
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex">
