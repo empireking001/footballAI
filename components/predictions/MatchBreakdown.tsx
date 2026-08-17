@@ -5,7 +5,7 @@ import { ConfidenceBar } from '@/components/ui/ConfidenceBar';
 import { MarketBar } from '@/components/predictions/MarketBar';
 import { Container } from '@/components/ui/Container';
 import { formatKickoff } from '@/lib/utils';
-import { MatchFormItem, Prediction } from '@/types/api';
+import { AiSettings, MatchFormItem, Prediction } from '@/types/api';
 import { MatchAssistant } from '@/components/predictions/MatchAssistant';
 import { AdBanner } from '@/components/ads/AdBanner';
 
@@ -105,12 +105,16 @@ function OddsTable({ prediction }: { prediction: Prediction }) {
   );
 }
 
-export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
+export function MatchBreakdown({ prediction, aiSettings }: { prediction: Prediction; aiSettings?: AiSettings }) {
   const { match } = prediction;
   const correctScores = prediction.markets.filter((item) => item.market === 'Correct Score').slice(0, 5);
   const context = prediction.context;
-  const homeStanding = context?.standings.find((row) => row.team.name === match.homeTeam.name);
-  const awayStanding = context?.standings.find((row) => row.team.name === match.awayTeam.name);
+  const homeStanding = context?.standings.find((row) => typeof row.team === 'object' && row.team?.name === match.homeTeam.name);
+  const awayStanding = context?.standings.find((row) => typeof row.team === 'object' && row.team?.name === match.awayTeam.name);
+  const showConfidence = aiSettings?.showConfidence !== false;
+  const showMarkets = aiSettings?.showMarkets !== false;
+  const showExplanation = aiSettings?.showExplanation !== false;
+  const showAssistant = aiSettings?.showAssistant !== false;
 
   return (
     <>
@@ -132,29 +136,29 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
             <span className="font-display text-2xl text-muted">VS</span>
             <TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} size={80} />
           </div>
-          <div className="mx-auto mt-8 max-w-lg">
+          {showMarkets && <div className="mx-auto mt-8 max-w-lg">
             <ConfidenceBar
               home={findMarket(prediction, '1X2', 'Home')}
               draw={findMarket(prediction, '1X2', 'Draw')}
               away={findMarket(prediction, '1X2', 'Away')}
             />
-          </div>
-          <div className="mx-auto mt-6 flex max-w-lg items-center justify-between border-t border-border pt-4">
+          </div>}
+          {showConfidence && <div className="mx-auto mt-6 flex max-w-lg items-center justify-between border-t border-border pt-4">
             <span className="text-sm text-muted">AI confidence</span>
             <span className="font-mono text-2xl font-bold tabular-nums text-primary">{prediction.confidenceScore}%</span>
-          </div>
+          </div>}
         </Container>
       </div>
 
       <Container className="grid gap-6 py-10 sm:py-12 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
-          <Card>
+          {showExplanation && <Card>
             <CardContent className="pt-5">
               <h2 className="font-display text-lg font-bold uppercase tracking-tight">AI analysis</h2>
               <p className="mt-3 text-sm leading-relaxed text-foreground/90">{prediction.aiExplanation}</p>
               {prediction.historicalComparison && <p className="mt-3 text-sm leading-relaxed text-muted">{prediction.historicalComparison}</p>}
             </CardContent>
-          </Card>
+          </Card>}
 
           <Card>
             <CardContent className="pt-5">
@@ -185,9 +189,9 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
             </CardContent>
           </Card>
 
-          <MatchAssistant prediction={prediction} />
+          {showAssistant && <MatchAssistant prediction={prediction} />}
 
-          <Card>
+          {showExplanation && <Card>
             <CardContent className="pt-5">
               <h2 className="font-display text-lg font-bold uppercase tracking-tight">Key factors</h2>
               <ul className="mt-3 flex flex-col gap-2.5">
@@ -199,9 +203,9 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
                 ))}
               </ul>
             </CardContent>
-          </Card>
+          </Card>}
 
-          <Card>
+          {showMarkets && <Card>
             <CardContent className="flex flex-col gap-4 pt-5">
               <h2 className="font-display text-lg font-bold uppercase tracking-tight">Other markets</h2>
               <MarketBar label="Double chance" optionA={{ label: '1X', value: findMarket(prediction, 'Double Chance', 'Home or Draw') }} optionB={{ label: 'X2', value: findMarket(prediction, 'Double Chance', 'Draw or Away') }} />
@@ -210,12 +214,12 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
               <MarketBar label="Over/Under 2.5" optionA={{ label: 'Over', value: findMarket(prediction, 'Over/Under 2.5', 'Over') }} optionB={{ label: 'Under', value: findMarket(prediction, 'Over/Under 2.5', 'Under') }} />
               <MarketBar label="Over/Under 3.5" optionA={{ label: 'Over', value: findMarket(prediction, 'Over/Under 3.5', 'Over') }} optionB={{ label: 'Under', value: findMarket(prediction, 'Over/Under 3.5', 'Under') }} />
             </CardContent>
-          </Card>
+          </Card>}
         </div>
 
         <div className="flex flex-col gap-6">
-          <OddsTable prediction={prediction} />
-          <Card>
+          {showMarkets && <OddsTable prediction={prediction} />}
+          {showMarkets && <Card>
             <CardContent className="pt-5">
               <h2 className="font-display text-lg font-bold uppercase tracking-tight">Most likely scorelines</h2>
               <ul className="mt-3 flex flex-col gap-2">
@@ -227,8 +231,8 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
                 ))}
               </ul>
             </CardContent>
-          </Card>
-          <p className="px-1 text-xs leading-relaxed text-muted">Generated by model {prediction.modelVersion}. Predictions are statistical estimates for informational purposes only — not betting advice.</p>
+          </Card>}
+          {showExplanation && <p className="px-1 text-xs leading-relaxed text-muted">Generated by model {prediction.modelVersion}. Predictions are statistical estimates for informational purposes only — not betting advice.</p>}
         </div>
       </Container>
     </>

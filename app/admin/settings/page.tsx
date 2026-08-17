@@ -40,6 +40,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [adSlots, setAdSlots] = useState<AdSlot[]>(DEFAULT_AD_SLOTS);
 
   const { register, handleSubmit, reset } = useForm<SettingsFormValues>();
@@ -67,17 +68,21 @@ export default function AdminSettingsPage() {
       });
       setAdSlots(s.adSlots?.length ? s.adSlots : DEFAULT_AD_SLOTS);
       setLoading(false);
+    }).catch((requestError) => {
+      setError((requestError as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Unable to load site settings.');
+      setLoading(false);
     });
   }, [reset]);
 
   async function onSubmit(values: SettingsFormValues) {
     setSaving(true);
+    setError(null);
     try {
       await apiClient.patch('/admin/settings', {
-        siteName: values.siteName,
-        logoUrl: values.logoUrl || undefined,
-        faviconUrl: values.faviconUrl || undefined,
-        contact: { email: values.contactEmail, phone: values.contactPhone, address: values.contactAddress },
+        siteName: values.siteName.trim(),
+        logoUrl: values.logoUrl.trim() || undefined,
+        faviconUrl: values.faviconUrl.trim() || undefined,
+        contact: { email: values.contactEmail.trim() || undefined, phone: values.contactPhone.trim(), address: values.contactAddress.trim() },
         socialLinks: {
           twitter: values.socialTwitter || undefined,
           facebook: values.socialFacebook || undefined,
@@ -91,6 +96,10 @@ export default function AdminSettingsPage() {
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+    } catch (requestError) {
+      const response = (requestError as { response?: { data?: { message?: string; details?: Array<{ field?: string; message?: string }> } } }).response?.data;
+      const details = response?.details?.map((item) => `${item.field ?? 'field'}: ${item.message ?? 'invalid value'}`).join('; ');
+      setError(details ? `${response?.message ?? 'Validation failed'} — ${details}` : response?.message ?? 'Unable to save site settings. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -211,6 +220,7 @@ export default function AdminSettingsPage() {
           </CardContent>
         </Card>
 
+        {error && <div className="rounded-lg border border-danger/30 bg-danger/5 p-4 text-sm leading-6 text-danger">{error}</div>}
         <div className="flex items-center gap-3">
           <Button type="submit" disabled={saving} className="w-fit">
             {saving ? 'Saving…' : 'Save settings'}

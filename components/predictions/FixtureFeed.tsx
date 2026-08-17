@@ -54,6 +54,25 @@ function PendingFixtureCard({ item }: { item: FixtureFeedItem }) {
   );
 }
 
+function AiUnavailableCard({ item }: { item: FixtureFeedItem }) {
+  const reason = item.aiUnavailableReason === 'disabled' ? 'AI analysis is currently switched off by the administrator.' : 'AI analysis is currently limited to another subscription audience.';
+  return (
+    <Link href={`/matches/${item.match._id}`} className="block">
+      <Card className="h-full border-border/80 bg-surface/70 transition-colors hover:border-primary/50">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <span className="max-w-[65%] truncate text-xs font-medium text-muted">{item.match.league.name}</span>
+          <Badge variant="default"><Clock3 className="mr-1 h-3 w-3" />Fixture</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between gap-3 text-sm font-semibold text-foreground"><span className="truncate">{item.match.homeTeam.name}</span><span className="font-display text-xs text-muted">VS</span><span className="truncate text-right">{item.match.awayTeam.name}</span></div>
+          <div className="mt-5 border-t border-border pt-3 text-xs text-muted">{formatKickoff(item.match.kickoffAt)}</div>
+          <p className="mt-3 text-xs leading-5 text-muted">{reason}</p>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
 function LockedFixtureCard({ item }: { item: FixtureFeedItem }) {
   const prediction = item.prediction;
   if (!prediction) return <PendingFixtureCard item={item} />;
@@ -89,8 +108,9 @@ export function FixtureFeed({ items, emptyMessage = 'No fixtures found for this 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => {
+        if (item.isAiUnavailable) return <AiUnavailableCard key={item.match._id} item={item} />;
         if (item.isVipLocked) return <LockedFixtureCard key={item.match._id} item={item} />;
-        if (item.prediction) return <PredictionCard key={item.match._id} prediction={item.prediction} />;
+        if (item.prediction) return <PredictionCard key={item.match._id} prediction={item.prediction} aiSettings={item.ai} />;
         return <PendingFixtureCard key={item.match._id} item={item} />;
       })}
     </div>

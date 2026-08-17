@@ -34,7 +34,7 @@ export default function AdminMatchesPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<MatchStatus | "all">("all");
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "matches", page, status],
     queryFn: () =>
       adminList<Match>("matches", {
@@ -48,9 +48,9 @@ export default function AdminMatchesPage() {
     {
       key: "match",
       label: "Match",
-      render: (match) => `${match.homeTeam.name} vs ${match.awayTeam.name}`,
+      render: (match) => `${match.homeTeam?.name ?? 'Unknown home team'} vs ${match.awayTeam?.name ?? 'Unknown away team'}`,
     },
-    { key: "league", label: "League", render: (match) => match.league.name },
+    { key: "league", label: "League", render: (match) => match.league?.name ?? 'Unknown league' },
     { key: "kickoffAt", label: "Kickoff", render: (match) => formatKickoff(match.kickoffAt) },
     {
       key: "score",
@@ -92,6 +92,7 @@ export default function AdminMatchesPage() {
           </button>
         ))}
       </div>
+      {isError && <div className="mb-4 rounded-lg border border-danger/30 bg-danger/5 p-4 text-sm text-danger">Unable to load matches for this filter. {error instanceof Error ? error.message : 'Check the admin session and backend response, then try again.'}</div>}
       <DataTable
         columns={columns}
         rows={data?.data ?? []}

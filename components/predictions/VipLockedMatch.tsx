@@ -17,10 +17,11 @@ import { AdBanner } from '@/components/ads/AdBanner';
  * token, so VIP-gated content is retried here on the client once the auth
  * store has hydrated from the refresh cookie.
  */
-export function VipLockedMatch({ matchId }: { matchId: string }) {
+export function VipLockedMatch({ matchId, unavailableReason = 'vip' }: { matchId: string; unavailableReason?: 'vip' | 'disabled' | 'audience' }) {
   const user = useAuthStore((s) => s.user);
   const isHydrated = useAuthStore((s) => s.isHydrated);
   const isVip = user?.subscriptionTier === 'vip' || user?.role === 'admin' || user?.role === 'super_admin';
+  const isAiUnavailable = unavailableReason !== 'vip';
 
   const { data, isLoading } = useQuery({
     queryKey: ['prediction', 'match', matchId],
@@ -28,10 +29,10 @@ export function VipLockedMatch({ matchId }: { matchId: string }) {
       const { data } = await apiClient.get<{ data: Prediction }>(`/predictions/match/${matchId}`);
       return data.data;
     },
-    enabled: isHydrated && !!user && isVip,
+    enabled: isHydrated && !!user && isVip && !isAiUnavailable,
   });
 
-  if (!isHydrated || (isVip && isLoading)) {
+  if (!isHydrated || (!isAiUnavailable && isVip && isLoading)) {
     return (
       <Container className="flex justify-center py-20">
         <Loader2 className="h-6 w-6 animate-spin text-muted" />
@@ -47,16 +48,20 @@ export function VipLockedMatch({ matchId }: { matchId: string }) {
       <div className="max-w-md rounded-xl border border-vip/30 bg-vip/5 p-8 text-center">
         <Lock className="mx-auto h-8 w-8 text-vip" />
         <h1 className="mt-4 font-display text-xl font-bold uppercase tracking-tight">
-          This is a VIP prediction
+          {unavailableReason === 'disabled' ? 'AI analysis is currently off' : unavailableReason === 'audience' ? 'AI analysis is limited' : 'This is a VIP prediction'}
         </h1>
         <p className="mt-2 text-sm text-muted">
-          {user
-            ? 'Upgrade to VIP to see the full breakdown for this match.'
-            : 'Log in and upgrade to VIP to see the full breakdown for this match.'}
+          {unavailableReason === 'disabled'
+            ? 'The administrator has temporarily hidden AI analysis. The fixture remains available.'
+            : unavailableReason === 'audience'
+              ? 'The administrator has limited AI analysis to another audience. The fixture remains available.'
+              : user
+                ? 'Upgrade to VIP to see the full breakdown for this match.'
+                : 'Log in and upgrade to VIP to see the full breakdown for this match.'}
         </p>
-        <Button variant="vip" className="mt-5" asChild>
+        {!isAiUnavailable && <Button variant="vip" className="mt-5" asChild>
           <Link href={user ? '/pricing' : '/login'}>{user ? 'See VIP plans' : 'Log in'}</Link>
-        </Button>
+        </Button>}
       </div>
     </Container>
   );

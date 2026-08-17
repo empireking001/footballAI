@@ -34,6 +34,7 @@ const NAV_ITEMS = [
   { label: 'Teams', href: '/admin/teams', icon: Users2 },
   { label: 'Matches', href: '/admin/matches', icon: CalendarDays },
   { label: 'Predictions', href: '/admin/predictions', icon: Sparkles },
+  { label: 'AI controls', href: '/admin/ai', icon: Sparkles },
   { label: 'Coupons', href: '/admin/coupons', icon: Ticket },
   { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
   { label: 'Blog', href: '/admin/blog', icon: Newspaper },

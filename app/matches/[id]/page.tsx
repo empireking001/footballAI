@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { MatchBreakdown } from '@/components/predictions/MatchBreakdown';
 import { VipLockedMatch } from '@/components/predictions/VipLockedMatch';
 import { fetchApi } from '@/lib/api/server';
-import { Match, Prediction } from '@/types/api';
+import { Match, Prediction, SiteSettings } from '@/types/api';
 import { formatKickoff } from '@/lib/utils';
 import { AdBanner } from '@/components/ads/AdBanner';
 
@@ -25,6 +25,10 @@ async function getMatch(matchId: string) {
   return fetchApi<Match>(`/matches/${matchId}`, { revalidate: 60 });
 }
 
+async function getPublicSettings() {
+  return fetchApi<SiteSettings>('/settings', { revalidate: 300 });
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const [{ data: prediction }, { data: match }] = await Promise.all([getPrediction(id), getMatch(id)]);
@@ -38,10 +42,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function MatchDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const { data, status } = await getPrediction(id);
+  const [{ data, status, error }, { data: settings }] = await Promise.all([getPrediction(id), getPublicSettings()]);
 
-  if (status === 403) return <VipLockedMatch matchId={id} />;
-  if (data) return <MatchBreakdown prediction={data} />;
+  if (status === 403) return <VipLockedMatch matchId={id} unavailableReason={error?.includes('disabled') ? 'disabled' : error?.includes('audience') ? 'audience' : 'vip'} />;
+  if (data) return <MatchBreakdown prediction={data} aiSettings={settings?.ai} />;
 
   const { data: match } = await getMatch(id);
   if (!match) {
