@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { label: "Tomorrow", href: "/predictions/tomorrow" },
   { label: "Next 7 days", href: "/predictions/week" },
   { label: "Live", href: "/live" },
+  { label: "Naija Matchday", href: "/naija-matchday" },
   { label: "VIP", href: "/predictions/vip" },
   { label: "Leagues", href: "/leagues" },
   { label: "Insights", href: "/blog" },
