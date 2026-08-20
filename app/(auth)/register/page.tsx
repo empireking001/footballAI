@@ -47,7 +47,7 @@ export default function RegisterPage() {
     try {
       const { user, accessToken } = await registerUser({ ...values, referralCode });
       setAuth(user, accessToken);
-      router.push('/dashboard?welcome=1');
+      router.push(`/verify-email?email=${encodeURIComponent(user.email)}`);
     } catch (error) {
       const message = isAxiosError(error) ? error.response?.data?.message : undefined;
       setServerError(message || 'Something went wrong. Please try again.');
@@ -57,7 +57,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create your account"
-      subtitle="Free predictions, every day — upgrade to VIP any time."
+      subtitle="Free predictions, every day — verify your email to activate your account."
       footer={
         <span className="text-muted">
           Already have an account?{' '}

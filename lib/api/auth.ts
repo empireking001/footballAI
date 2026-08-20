@@ -81,10 +81,10 @@ export async function resetPassword(
   return { message: data.message };
 }
 
-export async function verifyEmail(token: string): Promise<User> {
+export async function verifyEmail(code: string): Promise<User> {
   const { data } = await apiClient.post<ApiResponse<{ user: User }>>(
     "/auth/verify-email",
-    { token },
+    { token: code },
   );
   return data.data.user;
 }
