@@ -40,7 +40,7 @@ interface PredictionFormValues {
   tier: PredictionTier;
   isFeatured: boolean;
   confidenceScore: number | '';
-  riskRating: RiskRating;
+  riskRating: RiskRating | '';
   aiExplanation: string;
   historicalComparison: string;
   keyFactorsText: string;
@@ -50,8 +50,8 @@ interface PredictionFormValues {
 const DEFAULT_PREDICTION_VALUES: PredictionFormValues = {
   tier: 'free',
   isFeatured: false,
-  confidenceScore: 50,
-  riskRating: 'medium',
+  confidenceScore: '',
+  riskRating: '',
   aiExplanation: '',
   historicalComparison: '',
   keyFactorsText: '',
@@ -101,8 +101,8 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       ? {
           tier: predictionQuery.data.tier,
           isFeatured: predictionQuery.data.isFeatured ?? false,
-          confidenceScore: predictionQuery.data.confidenceScore,
-          riskRating: predictionQuery.data.riskRating,
+          confidenceScore: predictionQuery.data.confidenceScore ?? '',
+          riskRating: predictionQuery.data.riskRating ?? '',
           aiExplanation: predictionQuery.data.aiExplanation,
           historicalComparison: predictionQuery.data.historicalComparison ?? '',
           keyFactorsText: predictionQuery.data.keyFactors.join('\n'),
@@ -150,15 +150,15 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       tier: values.tier,
       isFeatured: values.isFeatured,
       confidenceScore: values.confidenceScore === '' ? 0 : Number(values.confidenceScore),
-      riskRating: values.riskRating,
+      riskRating: values.riskRating || 'medium',
       aiExplanation: values.aiExplanation.trim(),
       historicalComparison: values.historicalComparison.trim() || undefined,
       keyFactors: values.keyFactorsText.split('\n').map((factor) => factor.trim()).filter(Boolean),
       markets,
     };
 
-    if (!payload.aiExplanation || markets.length === 0) {
-      setPredictionError('Add an explanation and at least one market selection before saving.');
+    if (markets.length === 0) {
+      setPredictionError('Add at least one market selection before saving. The AI explanation and confidence fields are optional.');
       return;
     }
 
@@ -253,12 +253,13 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
                 </select>
               </label>
               <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-                Confidence score
+                Confidence score <span className="font-normal text-muted">(optional)</span>
                 <input type="number" min="0" max="100" {...predictionForm.register('confidenceScore', { setValueAs: (value) => value === '' ? '' : Number(value) })} className="h-11 rounded-md border border-border bg-surface-elevated px-4 text-sm text-foreground" />
               </label>
               <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-                Risk rating
+                Risk rating <span className="font-normal text-muted">(optional)</span>
                 <select {...predictionForm.register('riskRating')} className="h-11 rounded-md border border-border bg-surface-elevated px-4 text-sm text-foreground">
+                  <option value="">Not set</option>
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
@@ -270,11 +271,11 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
               Feature this prediction on public surfaces
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-              AI explanation
+              Explanation <span className="font-normal text-muted">(optional — not required for manual predictions)</span>
               <textarea rows={7} {...predictionForm.register('aiExplanation')} className="w-full rounded-md border border-border bg-surface-elevated px-4 py-3 text-sm text-foreground outline-none focus:border-primary" />
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-              Historical comparison
+              Historical comparison <span className="font-normal text-muted">(optional)</span>
               <textarea rows={4} {...predictionForm.register('historicalComparison')} className="w-full rounded-md border border-border bg-surface-elevated px-4 py-3 text-sm text-foreground outline-none focus:border-primary" />
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">

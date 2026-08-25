@@ -32,6 +32,7 @@ export function PredictionCard({
   aiSettings?: AiSettings;
 }) {
   const { match, confidenceScore, riskRating, tier } = prediction;
+  const isManual = prediction.modelVersion === 'manual-v1';
   const winner = prediction.markets.filter((m) => m.market === '1X2');
   const home = winner.find((m) => m.selection === 'Home')?.probability ?? 0;
   const draw = winner.find((m) => m.selection === 'Draw')?.probability ?? 0;
@@ -62,8 +63,8 @@ export function PredictionCard({
 
           {aiSettings?.showMarkets !== false && <ConfidenceBar home={home} draw={draw} away={away} />}
 
-          {aiSettings?.showConfidence !== false && <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-            <span className="text-xs text-muted">AI confidence</span>
+          {aiSettings?.showConfidence !== false && (!isManual || confidenceScore > 0) && <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+            <span className="text-xs text-muted">{isManual ? 'Confidence' : 'AI confidence'}</span>
             <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
               {confidenceScore}%
             </span>
