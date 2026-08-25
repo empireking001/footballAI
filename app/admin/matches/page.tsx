@@ -56,7 +56,7 @@ export default function AdminMatchesPage() {
       key: "score",
       label: "Score",
       render: (match) =>
-        match.score.homeFullTime !== undefined
+        match.score?.homeFullTime !== undefined
           ? `${match.score.homeFullTime}-${match.score.awayFullTime}`
           : "—",
     },

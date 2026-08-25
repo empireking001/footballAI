@@ -34,8 +34,8 @@ export function LiveMatchCard({ match }: { match: Match }) {
               {match.status === 'halftime' ? 'HT' : 'Live'}
             </Badge>
           </div>
-          <TeamRow name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} score={match.score.homeFullTime} />
-          <TeamRow name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} score={match.score.awayFullTime} />
+          <TeamRow name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} score={match.score?.homeFullTime} />
+          <TeamRow name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} score={match.score?.awayFullTime} />
         </CardContent>
       </Card>
     </Link>

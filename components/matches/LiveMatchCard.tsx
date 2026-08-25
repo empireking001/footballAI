@@ -35,8 +35,8 @@ export function LiveMatchCard({ match }: { match: Match }) {
           </span>
         </div>
         <CardContent className="flex flex-col gap-2 p-0">
-          <TeamRow name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} score={match.score.homeFullTime} />
-          <TeamRow name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} score={match.score.awayFullTime} />
+          <TeamRow name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} score={match.score?.homeFullTime} />
+          <TeamRow name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} score={match.score?.awayFullTime} />
         </CardContent>
       </Card>
     </Link>

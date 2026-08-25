@@ -181,7 +181,7 @@ export function MatchBreakdown({ prediction, aiSettings }: { prediction: Predict
                     {context.headToHead.map((historic) => (
                       <div key={historic._id} className="flex items-center justify-between text-xs text-muted">
                         <span>{formatKickoff(historic.kickoffAt)}</span>
-                        <span>{historic.homeTeam.name} {historic.score.homeFullTime ?? '-'}–{historic.score.awayFullTime ?? '-'} {historic.awayTeam.name}</span>
+                        <span>{historic.homeTeam.name} {historic.score?.homeFullTime ?? '-'}–{historic.score?.awayFullTime ?? '-'} {historic.awayTeam.name}</span>
                       </div>
                     ))}
                   </div>

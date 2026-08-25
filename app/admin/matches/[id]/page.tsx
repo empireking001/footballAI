@@ -90,8 +90,8 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           venue: data.venue ?? '',
           referee: data.referee ?? '',
           isFeatured: data.isFeatured ?? false,
-          homeFullTime: data.score.homeFullTime ?? '',
-          awayFullTime: data.score.awayFullTime ?? '',
+          homeFullTime: data.score?.homeFullTime ?? '',
+          awayFullTime: data.score?.awayFullTime ?? '',
         }
       : undefined,
   });
