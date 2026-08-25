@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { getMe } from '@/lib/api/auth';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { apiClient } from '@/lib/api/client';
 
 /**
  * Runs once on app load to silently restore a session from the httpOnly
@@ -22,8 +20,8 @@ export function AuthInitializer() {
 
     async function restoreSession() {
       try {
-        const { data } = await axios.post(
-          `${API_URL}/auth/refresh`,
+        const { data } = await apiClient.post(
+          "/auth/refresh",
           {},
           { withCredentials: true },
         );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,6 +25,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +42,11 @@ export default function LoginPage() {
       // FIX: Pass 'values' directly as a single object argument
       const { user, accessToken } = await login(values);
       setAuth(user, accessToken);
-      router.push("/dashboard");
+      const nextPath = searchParams.get("next");
+      const safeNextPath = nextPath?.startsWith("/") && !nextPath.startsWith("//")
+        ? nextPath
+        : "/dashboard";
+      router.push(safeNextPath);
     } catch (error) {
       const message = isAxiosError(error)
         ? error.response?.data?.message
