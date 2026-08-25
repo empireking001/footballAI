@@ -33,7 +33,7 @@ const STATUS_VARIANT: Record<string, "live" | "default" | "risk-high"> = {
 export default function AdminMatchesPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<MatchStatus | "all">("all");
+  const [status, setStatus] = useState<MatchStatus | "all">("scheduled");
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "matches", page, status],
     queryFn: () =>
@@ -71,7 +71,7 @@ export default function AdminMatchesPage() {
     <div>
       <AdminPageHeader
         title="Matches"
-        subtitle="Filter every fixture by status, open any match to edit its score and attached prediction, and let the automated pipeline handle provider synchronization."
+        subtitle="Start with upcoming fixtures to write predictions, then use the status filters for live monitoring, score corrections, and historical review."
       />
       <div className="mb-4 flex gap-2 overflow-x-auto">
         {STATUS_OPTIONS.map((option) => (

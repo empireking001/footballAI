@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AccumulatorPage() {
-  const { data } = await fetchApi<Prediction[]>('/predictions?limit=15', { revalidate: 300 });
+  const { data } = await fetchApi<Prediction[]>('/predictions?limit=15', { cache: 'no-store' });
   const predictions = data ?? [];
 
   return (

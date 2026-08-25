@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [{ data: feed }, { data: stats }] = await Promise.all([
-    fetchApi<FixtureFeedItem[]>('/predictions/feed?when=week&limit=9', { revalidate: 60, tags: ['fixtures', 'predictions-week'] }),
+    fetchApi<FixtureFeedItem[]>('/predictions/feed?when=week&limit=9', { cache: 'no-store' }),
     fetchApi<{ leaguesCovered: number; teamsTracked: number; matchesAnalyzed: number; predictionsGenerated: number }>('/stats', { revalidate: 900, tags: ['stats'] }),
   ]);
   const items = feed ?? [];

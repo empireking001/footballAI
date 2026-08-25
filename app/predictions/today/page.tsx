@@ -12,8 +12,7 @@ export const metadata: Metadata = {
 
 export default async function TodayPredictionsPage() {
   const { data, error } = await fetchApi<FixtureFeedItem[]>('/predictions/feed?when=today&limit=50', {
-    revalidate: 60,
-    tags: ['fixtures', 'predictions-today'],
+    cache: 'no-store',
   });
 
   return (

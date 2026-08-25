@@ -18,11 +18,11 @@ interface PageProps {
 }
 
 async function getPrediction(matchId: string) {
-  return fetchApi<Prediction>(`/predictions/match/${matchId}`, { revalidate: 60 });
+  return fetchApi<Prediction>(`/predictions/match/${matchId}`, { cache: 'no-store' });
 }
 
 async function getMatch(matchId: string) {
-  return fetchApi<Match>(`/matches/${matchId}`, { revalidate: 60 });
+  return fetchApi<Match>(`/matches/${matchId}`, { cache: 'no-store' });
 }
 
 async function getPublicSettings() {

@@ -165,7 +165,10 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
     try {
       if (predictionQuery.data) {
         const { matchId: _matchId, ...updatePayload } = payload;
-        await apiClient.patch(`/admin/predictions/${predictionQuery.data._id}`, updatePayload);
+        await apiClient.patch(`/admin/predictions/${predictionQuery.data._id}`, {
+          ...updatePayload,
+          modelVersion: 'manual-v1',
+        });
       } else {
         await apiClient.post('/admin/predictions/manual', payload);
       }

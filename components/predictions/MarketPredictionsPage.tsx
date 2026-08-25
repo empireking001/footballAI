@@ -13,8 +13,7 @@ interface MarketPredictionsPageProps {
 
 export async function MarketPredictionsPage({ eyebrow, title, subtitle, view }: MarketPredictionsPageProps) {
   const { data } = await fetchApi<Prediction[]>('/predictions?limit=30', {
-    revalidate: 300,
-    tags: ['predictions'],
+    cache: 'no-store',
   });
   const predictions = data ?? [];
 
