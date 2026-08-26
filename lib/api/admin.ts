@@ -69,6 +69,11 @@ export async function adminUpdate<T, P = unknown>(
   return data.data;
 }
 
+export async function adminSyncFixtures(body: { leagueId: string; from: string; to: string }): Promise<{ message?: string }> {
+  const { data } = await apiClient.post<ApiResponse<null>>('/admin/matches/sync', body);
+  return { message: data.message };
+}
+
 export async function adminRemove(
   resource: string,
   id: string,
