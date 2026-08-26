@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
@@ -95,6 +95,8 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
   const [saved, setSaved] = useState(false);
   const [predictionSaved, setPredictionSaved] = useState(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError: isMatchError, error: matchError } = useQuery({
@@ -148,16 +150,34 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
   });
   const marketFields = useFieldArray({ control: predictionForm.control, name: 'markets' });
   const watchedMarkets = predictionForm.watch('markets');
+  const previewValues = predictionForm.watch();
+
+  useEffect(() => {
+    if (predictionQuery.isLoading || predictionQuery.data) return;
+    const savedDraft = window.localStorage.getItem(`manual-prediction-draft:${id}`);
+    if (!savedDraft) return;
+    try {
+      predictionForm.reset(JSON.parse(savedDraft) as PredictionFormValues);
+    } catch {
+      window.localStorage.removeItem(`manual-prediction-draft:${id}`);
+    }
+  }, [id, predictionForm, predictionQuery.data, predictionQuery.isLoading]);
 
   function appendMarketPreset(market: string) {
     const preset = MARKET_PRESETS[market] ?? [{ market, selection: '', probability: 50 }];
     preset.forEach((item) => marketFields.append({ ...item }));
   }
 
+  function saveDraft(values: PredictionFormValues) {
+    window.localStorage.setItem(`manual-prediction-draft:${id}`, JSON.stringify(values));
+    setDraftSaved(true);
+    setPredictionError(null);
+  }
+
   async function onSubmit(values: FormValues) {
     setServerError(null);
     try {
-      await adminUpdate('matches', id, {
+      const updatedMatch = await adminUpdate<Match & { venue?: string; referee?: string; isFeatured?: boolean }>('matches', id, {
         status: values.status,
         venue: values.venue || undefined,
         referee: values.referee || undefined,
@@ -167,6 +187,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           awayFullTime: values.awayFullTime === '' ? undefined : Number(values.awayFullTime),
         },
       });
+      queryClient.setQueryData(['admin', 'matches', id], updatedMatch);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
@@ -208,6 +229,8 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           })())
         : await apiClient.post<{ data: Prediction }>('/admin/predictions/manual', payload);
       queryClient.setQueryData(['admin', 'predictions', 'match', id], response.data.data);
+      window.localStorage.removeItem(`manual-prediction-draft:${id}`);
+      setDraftSaved(false);
       setPredictionError(null);
       setPredictionSaved(true);
       setTimeout(() => setPredictionSaved(false), 2000);
@@ -234,6 +257,10 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       <AdminPageHeader title={`${data.homeTeam.name} vs ${data.awayTeam.name}`} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-lg flex-col gap-4">
+        <div className="border-b border-border pb-3">
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">Match details</h2>
+          <p className="mt-1 text-sm text-muted">Save the score and fixture information separately from the manual pick.</p>
+        </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="status" className="text-sm font-medium text-foreground">
             Status
@@ -252,9 +279,10 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Input label={`${data.homeTeam.name} goals`} type="number" {...register('homeFullTime')} />
-          <Input label={`${data.awayTeam.name} goals`} type="number" {...register('awayFullTime')} />
+          <Input label={`${data.homeTeam.name} goals`} type="number" min="0" {...register('homeFullTime', { setValueAs: (value) => value === '' ? '' : Number(value) })} />
+          <Input label={`${data.awayTeam.name} goals`} type="number" min="0" {...register('awayFullTime', { setValueAs: (value) => value === '' ? '' : Number(value) })} />
         </div>
+        <p className="-mt-2 text-xs leading-5 text-muted">This score appears on public fixture cards after you save. Provider scores can update it when official live data becomes available.</p>
 
         <Input label="Venue" {...register('venue')} />
         <Input label="Referee" {...register('referee')} />
@@ -270,7 +298,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           <Button type="submit" disabled={isSubmitting} className="w-fit">
             {isSubmitting ? 'Saving…' : 'Save changes'}
           </Button>
-          {saved && <span className="text-sm text-live">Saved</span>}
+          {saved && <span className="text-sm text-live">Match details saved</span>}
         </div>
       </form>
 
@@ -371,12 +399,35 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
                 })}
               </div>
             </div>
+            {showPreview && (
+              <div className="rounded-xl border border-primary/25 bg-background/70 p-4 sm:p-5">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-primary">Public preview</p>
+                    <h3 className="mt-1 font-display text-lg font-bold uppercase tracking-tight">{data.homeTeam.name} vs {data.awayTeam.name}</h3>
+                  </div>
+                  <span className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold text-muted">{previewValues.tier === 'vip' ? 'VIP' : 'Free'}</span>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {previewValues.markets.filter((market) => market.market.trim() && market.selection.trim() && market.probability !== '').map((market, index) => (
+                    <div key={`${market.market}-${market.selection}-${index}`} className="flex items-center justify-between rounded-md border border-border bg-surface/50 px-3 py-2.5 text-sm">
+                      <span className="text-muted">{market.market}</span>
+                      <span className="font-semibold text-foreground">{market.selection}</span>
+                      <span className="font-mono text-xs text-primary">{market.probability}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {predictionError && <p className="text-sm text-danger">{predictionError}</p>}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" variant="secondary" onClick={() => saveDraft(previewValues)}>Save draft</Button>
+              <Button type="button" variant="secondary" onClick={() => setShowPreview((current) => !current)}>{showPreview ? 'Hide preview' : 'Preview public card'}</Button>
               <Button type="submit" disabled={predictionForm.formState.isSubmitting} className="w-fit">
-                {predictionForm.formState.isSubmitting ? 'Saving…' : predictionQuery.data ? 'Save prediction changes' : 'Create manual prediction'}
+                {predictionForm.formState.isSubmitting ? 'Publishing…' : predictionQuery.data ? 'Save & publish changes' : 'Publish manual pick'}
               </Button>
-              {predictionSaved && <span className="text-sm text-live">Prediction saved</span>}
+              {draftSaved && <span className="text-sm text-muted">Draft saved on this browser</span>}
+              {predictionSaved && <span className="text-sm text-live">Published successfully</span>}
             </div>
           </form>
         )}
