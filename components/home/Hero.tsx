@@ -35,19 +35,18 @@ export function Hero({ prediction }: { prediction: Prediction | null }) {
       <Container className="relative py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <span className="mb-5 inline-block rounded-full border border-border bg-surface-elevated px-3 py-1 font-mono text-xs uppercase tracking-widest text-muted">
-            AI-generated · Poisson model · Live tracked accuracy
+            Manually entered · Live tracked results
           </span>
           <h1 className="font-display text-4xl font-extrabold uppercase leading-[1.05] tracking-tight text-balance sm:text-5xl lg:text-6xl">
             Predictions built on <span className="text-primary">real numbers</span>, not vibes
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-balance text-base text-muted sm:text-lg">
-            Every match is scored with an expected-goals statistical model, then explained in
-            plain English — with a confidence score you can actually trust.
+            Every pick is entered by the Football AI team and presented with clear markets, supporting context, and transparent results.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" asChild>
               <Link href="/predictions/today">
-                See today&apos;s predictions <ArrowRight className="h-4 w-4" />
+                See today&apos;s picks <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
@@ -91,7 +90,7 @@ export function Hero({ prediction }: { prediction: Prediction | null }) {
               />
 
               <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                <span className="text-sm text-muted">AI confidence</span>
+                <span className="text-sm text-muted">Confidence</span>
                 <span className="font-mono text-xl font-bold tabular-nums text-primary">
                   {prediction.confidenceScore}%
                 </span>
@@ -108,7 +107,7 @@ export function Hero({ prediction }: { prediction: Prediction | null }) {
         ) : (
           <div className="mx-auto mt-14 max-w-2xl rounded-xl border border-dashed border-border p-10 text-center">
             <p className="text-sm text-muted">
-              No predictions are live yet — check back closer to kickoff, or browse upcoming fixtures.
+              No manual picks are live yet — browse the upcoming fixtures and check back as picks are entered.
             </p>
             <Button className="mt-4" variant="secondary" asChild>
               <Link href="/leagues">Browse leagues</Link>

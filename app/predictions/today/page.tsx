@@ -7,7 +7,7 @@ import { FixtureFeedItem } from '@/types/api';
 
 export const metadata: Metadata = {
   title: "Today's Football Predictions",
-  description: 'Today’s fixtures, AI predictions, live states, and analysis readiness.',
+  description: 'Today’s fixtures, manual picks, live states, and prediction availability.',
 };
 
 export default async function TodayPredictionsPage() {
@@ -20,7 +20,7 @@ export default async function TodayPredictionsPage() {
       <PredictionsPageHeader
         eyebrow="Match centre"
         title="Today’s fixtures"
-        subtitle="See every match first. AI analysis appears as soon as the model finishes processing the fixture."
+        subtitle="See every match first. Manual picks appear as soon as the administrator enters them for the fixture."
       />
       <Container className="py-10 sm:py-12">
         <DateNav active="today" />

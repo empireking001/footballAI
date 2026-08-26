@@ -3,7 +3,7 @@ import { MarketPredictionsPage } from '@/components/predictions/MarketPrediction
 
 export const metadata: Metadata = {
   title: 'Both Teams to Score Predictions',
-  description: 'AI-generated BTTS predictions for upcoming football matches.',
+  description: 'Administrator-entered BTTS picks for upcoming football matches.',
 };
 
 export default function BttsPredictionsPage() {
@@ -11,7 +11,7 @@ export default function BttsPredictionsPage() {
     <MarketPredictionsPage
       eyebrow="BTTS"
       title="Both Teams to Score"
-      subtitle="Yes/No probabilities for every covered fixture, from the same statistical model."
+      subtitle="Yes/No picks entered by the administrator for covered fixtures."
       view="btts"
     />
   );

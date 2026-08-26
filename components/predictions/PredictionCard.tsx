@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ConfidenceBar } from '@/components/ui/ConfidenceBar';
 import { SaveButton } from '@/components/predictions/SaveButton';
 import { formatKickoff } from '@/lib/utils';
-import { AiSettings, Prediction } from '@/types/api';
+import { Prediction } from '@/types/api';
 
 function TeamCrest({ name, logoUrl }: { name: string; logoUrl?: string }) {
   return (
@@ -25,14 +25,11 @@ function TeamCrest({ name, logoUrl }: { name: string; logoUrl?: string }) {
 export function PredictionCard({
   prediction,
   showSaveButton = true,
-  aiSettings,
 }: {
   prediction: Prediction;
   showSaveButton?: boolean;
-  aiSettings?: AiSettings;
 }) {
   const { match, confidenceScore, riskRating, tier } = prediction;
-  const isManual = prediction.modelVersion === 'manual-v1';
   const winner = prediction.markets.filter((m) => m.market === '1X2');
   const home = winner.find((m) => m.selection === 'Home')?.probability ?? 0;
   const draw = winner.find((m) => m.selection === 'Draw')?.probability ?? 0;
@@ -61,10 +58,10 @@ export function PredictionCard({
             <TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} />
           </div>
 
-          {aiSettings?.showMarkets !== false && <ConfidenceBar home={home} draw={draw} away={away} />}
+          {winner.length > 0 && <ConfidenceBar home={home} draw={draw} away={away} />}
 
-          {aiSettings?.showConfidence !== false && (!isManual || confidenceScore > 0) && <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-            <span className="text-xs text-muted">{isManual ? 'Confidence' : 'AI confidence'}</span>
+          {confidenceScore > 0 && <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+            <span className="text-xs text-muted">Confidence</span>
             <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
               {confidenceScore}%
             </span>

@@ -3,7 +3,7 @@ import { MarketPredictionsPage } from '@/components/predictions/MarketPrediction
 
 export const metadata: Metadata = {
   title: 'Over/Under Predictions',
-  description: 'AI-generated Over/Under 2.5 goals predictions for upcoming football matches.',
+  description: 'Administrator-entered Over/Under 2.5 goals picks for upcoming football matches.',
 };
 
 export default function OverUnderPredictionsPage() {
@@ -11,7 +11,7 @@ export default function OverUnderPredictionsPage() {
     <MarketPredictionsPage
       eyebrow="Over/Under"
       title="Over/Under 2.5 Goals"
-      subtitle="Total-goals probabilities derived from each match's expected-goals model."
+      subtitle="Total-goals picks entered by the administrator for covered fixtures."
       view="over-under"
     />
   );

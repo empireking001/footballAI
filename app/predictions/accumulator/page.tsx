@@ -7,7 +7,7 @@ import { Prediction } from '@/types/api';
 
 export const metadata: Metadata = {
   title: 'Accumulator Builder',
-  description: 'Build your own accumulator from AI-generated predictions and see the combined probability.',
+  description: 'Build your own accumulator from administrator-entered picks and see the combined probability.',
 };
 
 export default async function AccumulatorPage() {

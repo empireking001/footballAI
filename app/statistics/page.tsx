@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Trophy, Users2, CalendarCheck, Sparkles } from 'lucide-react';
+import { Trophy, Users2, CalendarCheck, PenLine } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card, CardContent } from '@/components/ui/Card';
 import { fetchApi } from '@/lib/api/server';
@@ -30,7 +30,7 @@ export default async function StatisticsPage() {
     { label: 'Leagues covered', value: data?.leaguesCovered, icon: Trophy },
     { label: 'Teams tracked', value: data?.teamsTracked, icon: Users2 },
     { label: 'Matches analyzed', value: data?.matchesAnalyzed, icon: CalendarCheck },
-    { label: 'Predictions generated', value: data?.predictionsGenerated, icon: Sparkles },
+    { label: 'Manual predictions recorded', value: data?.predictionsGenerated, icon: PenLine },
   ];
 
   const accuracyStats = data

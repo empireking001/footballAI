@@ -3,7 +3,7 @@ import { MarketPredictionsPage } from '@/components/predictions/MarketPrediction
 
 export const metadata: Metadata = {
   title: 'Correct Score Predictions',
-  description: 'AI-generated correct score predictions for upcoming football matches.',
+  description: 'Administrator-entered correct-score picks for upcoming football matches.',
 };
 
 export default function CorrectScorePredictionsPage() {
@@ -11,7 +11,7 @@ export default function CorrectScorePredictionsPage() {
     <MarketPredictionsPage
       eyebrow="Correct Score"
       title="Correct Score Predictions"
-      subtitle="The three most likely exact scorelines for every covered fixture."
+      subtitle="Exact scoreline picks entered by the administrator for covered fixtures."
       view="correct-score"
     />
   );

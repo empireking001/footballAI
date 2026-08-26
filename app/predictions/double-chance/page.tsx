@@ -3,7 +3,7 @@ import { MarketPredictionsPage } from '@/components/predictions/MarketPrediction
 
 export const metadata: Metadata = {
   title: 'Double Chance Predictions',
-  description: 'AI-generated double chance predictions for upcoming football matches.',
+  description: 'Administrator-entered double chance picks for upcoming football matches.',
 };
 
 export default function DoubleChancePredictionsPage() {
@@ -11,7 +11,7 @@ export default function DoubleChancePredictionsPage() {
     <MarketPredictionsPage
       eyebrow="Double Chance"
       title="Double Chance Predictions"
-      subtitle="1X and X2 combined-outcome probabilities for every covered fixture."
+      subtitle="1X and X2 combined-outcome picks entered by the administrator for covered fixtures."
       view="double-chance"
     />
   );

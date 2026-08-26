@@ -7,7 +7,7 @@ import { FixtureFeedItem } from '@/types/api';
 
 export const metadata: Metadata = {
   title: 'Next 7 Days of Football',
-  description: 'Browse upcoming fixtures and AI analysis across the next seven days.',
+  description: 'Browse upcoming fixtures and manual picks across the next seven days.',
 };
 
 export default async function WeekPredictionsPage() {
@@ -20,7 +20,7 @@ export default async function WeekPredictionsPage() {
       <PredictionsPageHeader
         eyebrow="The fixture board"
         title="Next 7 days"
-        subtitle="Plan the week ahead. Every covered fixture stays visible while AI analysis is generated."
+        subtitle="Plan the week ahead. Every covered fixture stays visible while manual picks are entered."
       />
       <Container className="py-10 sm:py-12">
         <DateNav active="week" />

@@ -7,7 +7,7 @@ import { FixtureFeedItem } from '@/types/api';
 
 export const metadata: Metadata = {
   title: "Tomorrow’s Football Predictions",
-  description: 'Tomorrow’s fixtures, AI predictions, live states, and analysis readiness.',
+  description: 'Tomorrow’s fixtures, manual picks, live states, and prediction availability.',
 };
 
 export default async function TomorrowPredictionsPage() {
@@ -20,7 +20,7 @@ export default async function TomorrowPredictionsPage() {
       <PredictionsPageHeader
         eyebrow="Plan ahead"
         title="Tomorrow’s fixtures"
-        subtitle="Get ahead of kickoff with upcoming matches and clear AI analysis readiness."
+        subtitle="Get ahead of kickoff with upcoming matches and clear manual-pick availability."
       />
       <Container className="py-10 sm:py-12">
         <DateNav active="tomorrow" />
