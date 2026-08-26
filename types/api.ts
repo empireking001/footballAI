@@ -76,6 +76,7 @@ export interface Match {
     awayHalfTime?: number;
   };
   odds?: MatchOdds;
+  intelligence?: MatchContext;
 }
 
 export interface MarketOutcome {
@@ -96,10 +97,27 @@ export interface MatchFormItem {
   opponent: Team;
 }
 
+export interface TeamStats {
+  matchesPlayed: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  cleanSheets: number;
+  failedToScore: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  avgGoalsFor: number;
+  avgGoalsAgainst: number;
+}
+
 export interface MatchContext {
   standings: Standing[];
   form: { home: MatchFormItem[]; away: MatchFormItem[] };
   headToHead: Match[];
+  teamStats?: {
+    home: { overall: TeamStats; venue: TeamStats };
+    away: { overall: TeamStats; venue: TeamStats };
+  };
 }
 
 export interface Prediction {

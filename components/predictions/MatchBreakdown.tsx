@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ConfidenceBar } from '@/components/ui/ConfidenceBar';
 import { Container } from '@/components/ui/Container';
 import { formatKickoff, formatMatchScore } from '@/lib/utils';
-import { MarketOutcome, MatchFormItem, Prediction } from '@/types/api';
+import { MarketOutcome, MatchFormItem, Prediction, Standing, TeamStats } from '@/types/api';
 import { AdBanner } from '@/components/ads/AdBanner';
 
 function TeamCrest({ name, logoUrl, size = 64 }: { name: string; logoUrl?: string; size?: number }) {
@@ -33,6 +33,46 @@ function FormStrip({ label, items }: { label: string; items: MatchFormItem[] }) 
             <span className="text-[10px] text-muted">{item.score}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function formatRecord(stats?: TeamStats): string {
+  if (!stats || stats.matchesPlayed === 0) return '—';
+  return `${stats.wins}-${stats.draws}-${stats.losses}`;
+}
+
+function TeamProfile({ name, overall, venueLabel, venue }: { name: string; overall?: TeamStats; venueLabel: string; venue?: TeamStats }) {
+  const rows = [
+    ['Record', formatRecord(overall)],
+    ['Goals for', overall?.matchesPlayed ? `${overall.goalsFor} · ${overall.avgGoalsFor.toFixed(2)}/match` : '—'],
+    ['Goals against', overall?.matchesPlayed ? `${overall.goalsAgainst} · ${overall.avgGoalsAgainst.toFixed(2)}/match` : '—'],
+    ['Clean sheets', overall?.matchesPlayed ? `${overall.cleanSheets}/${overall.matchesPlayed}` : '—'],
+    ['Failed to score', overall?.matchesPlayed ? `${overall.failedToScore}/${overall.matchesPlayed}` : '—'],
+  ];
+  return (
+    <div className="rounded-lg border border-border bg-surface/40 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="truncate text-sm font-semibold text-foreground">{name}</h3>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Verified data</span>
+      </div>
+      <div className="mt-4 grid gap-2">
+        {rows.map(([label, value]) => <div key={label} className="flex items-center justify-between gap-3 text-xs"><span className="text-muted">{label}</span><span className="font-mono font-semibold tabular-nums text-foreground">{value}</span></div>)}
+      </div>
+      <div className="mt-4 border-t border-border pt-3 text-xs text-muted">{venueLabel}: <span className="font-mono font-semibold text-foreground">{formatRecord(venue)}</span></div>
+    </div>
+  );
+}
+
+function StandingComparison({ homeStanding, awayStanding, homeName, awayName }: { homeStanding?: Standing; awayStanding?: Standing; homeName: string; awayName: string }) {
+  if (!homeStanding && !awayStanding) return null;
+  return (
+    <div className="mt-5 border-t border-border pt-5">
+      <div className="mb-3 flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-foreground">League table comparison</h3><span className="font-mono text-[10px] uppercase tracking-widest text-muted">Live standings</span></div>
+      <div className="overflow-hidden rounded-lg border border-border">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-3 bg-surface-elevated px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-muted"><span>Team</span><span>Pos</span><span>Pts</span></div>
+        {[{ name: homeName, standing: homeStanding }, { name: awayName, standing: awayStanding }].map(({ name, standing }) => <div key={name} className="grid grid-cols-[1fr_auto_auto] gap-3 border-t border-border px-3 py-2.5 text-xs"><span className="truncate text-foreground">{name}</span><span className="font-mono text-foreground">{standing?.position ?? '—'}</span><span className="font-mono font-semibold text-primary">{standing?.points ?? '—'}</span></div>)}
       </div>
     </div>
   );
@@ -113,7 +153,7 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
         <div className="flex flex-col gap-6 lg:col-span-2">
           {(prediction.aiExplanation || prediction.historicalComparison) && <Card><CardContent className="pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Prediction note</h2>{prediction.aiExplanation && <p className="mt-3 text-sm leading-relaxed text-foreground/90">{prediction.aiExplanation}</p>}{prediction.historicalComparison && <p className="mt-3 text-sm leading-relaxed text-muted">{prediction.historicalComparison}</p>}</CardContent></Card>}
 
-          <Card><CardContent className="pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Supporting data</h2><div className="mt-4 grid gap-5 sm:grid-cols-2"><div className="rounded-md border border-border p-3"><FormStrip label={match.homeTeam.name} items={context?.form.home ?? []} />{homeStanding && <p className="mt-3 text-xs text-muted">League position {homeStanding.position} · {homeStanding.points} pts</p>}</div><div className="rounded-md border border-border p-3"><FormStrip label={match.awayTeam.name} items={context?.form.away ?? []} />{awayStanding && <p className="mt-3 text-xs text-muted">League position {awayStanding.position} · {awayStanding.points} pts</p>}</div></div>{context?.headToHead && context.headToHead.length > 0 && <div className="mt-5 border-t border-border pt-4"><h3 className="text-sm font-semibold text-foreground">Head-to-head</h3><div className="mt-2 flex flex-col gap-2">{context.headToHead.map((historic) => <div key={historic._id} className="flex items-center justify-between text-xs text-muted"><span>{formatKickoff(historic.kickoffAt)}</span><span>{historic.homeTeam.name} {historic.score?.homeFullTime ?? '-'}–{historic.score?.awayFullTime ?? '-'} {historic.awayTeam.name}</span></div>)}</div></div>}</CardContent></Card>
+          <Card><CardContent className="pt-5"><div><h2 className="font-display text-lg font-bold uppercase tracking-tight">Match intelligence</h2><p className="mt-1 text-xs text-muted">Verified statistics calculated from stored finished fixtures and live standings.</p></div><div className="mt-4 grid gap-4 sm:grid-cols-2"><TeamProfile name={match.homeTeam.name} overall={context?.teamStats?.home.overall} venueLabel="Home record" venue={context?.teamStats?.home.venue} /><TeamProfile name={match.awayTeam.name} overall={context?.teamStats?.away.overall} venueLabel="Away record" venue={context?.teamStats?.away.venue} /></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><div className="rounded-md border border-border p-3"><FormStrip label={`${match.homeTeam.name} form`} items={context?.form.home ?? []} /></div><div className="rounded-md border border-border p-3"><FormStrip label={`${match.awayTeam.name} form`} items={context?.form.away ?? []} /></div></div><StandingComparison homeStanding={homeStanding} awayStanding={awayStanding} homeName={match.homeTeam.name} awayName={match.awayTeam.name} />{context?.headToHead && context.headToHead.length > 0 && <div className="mt-5 border-t border-border pt-5"><div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-foreground">Head-to-head</h3><span className="font-mono text-[10px] uppercase tracking-widest text-muted">Last five</span></div><div className="mt-3 flex flex-col gap-2">{context.headToHead.map((historic) => <div key={historic._id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-xs text-muted"><span>{formatKickoff(historic.kickoffAt)}</span><span className="text-right">{historic.homeTeam.name} {historic.score?.homeFullTime ?? '-'}–{historic.score?.awayFullTime ?? '-'} {historic.awayTeam.name}</span></div>)}</div></div>}</CardContent></Card>
 
           {prediction.keyFactors.length > 0 && <Card><CardContent className="pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Key factors</h2><ul className="mt-3 flex flex-col gap-2.5">{prediction.keyFactors.map((factor, index) => <li key={index} className="flex items-start gap-2.5 text-sm text-foreground/90"><span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />{factor}</li>)}</ul></CardContent></Card>}
 
