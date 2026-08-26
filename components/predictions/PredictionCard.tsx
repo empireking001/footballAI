@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ConfidenceBar } from '@/components/ui/ConfidenceBar';
 import { SaveButton } from '@/components/predictions/SaveButton';
-import { formatKickoff } from '@/lib/utils';
+import { formatKickoff, formatMatchScore } from '@/lib/utils';
 import { Prediction } from '@/types/api';
 
 function TeamCrest({ name, logoUrl }: { name: string; logoUrl?: string }) {
@@ -30,6 +30,7 @@ export function PredictionCard({
   showSaveButton?: boolean;
 }) {
   const { match, confidenceScore, riskRating, tier } = prediction;
+  const currentScore = formatMatchScore(match.score);
   const winner = prediction.markets.filter((m) => m.market === '1X2');
   const home = winner.find((m) => m.selection === 'Home')?.probability ?? 0;
   const draw = winner.find((m) => m.selection === 'Draw')?.probability ?? 0;
@@ -53,7 +54,9 @@ export function PredictionCard({
               <span className="font-mono text-[11px] tabular-nums text-muted">
                 {formatKickoff(match.kickoffAt)}
               </span>
-              <span className="font-display text-lg text-muted">VS</span>
+              <span className={`font-display text-lg ${currentScore ? 'text-primary' : 'text-muted'}`}>
+                {currentScore ?? 'VS'}
+              </span>
             </div>
             <TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} />
           </div>

@@ -5,20 +5,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   Loader2,
-  LayoutDashboard,
   Users,
   Trophy,
   Shield,
-  Ticket,
-  Newspaper,
   Settings,
-  ScrollText,
   Users2,
   CalendarDays,
-  Image as ImageIcon,
-  Search,
-  Megaphone,
-  Mail,
   CreditCard,
 } from 'lucide-react';
 import { Container } from "@/components/ui/Container";
@@ -27,21 +19,13 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
 const NAV_ITEMS = [
-  { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Leagues', href: '/admin/leagues', icon: Trophy },
   { label: 'Teams', href: '/admin/teams', icon: Users2 },
   { label: 'Matches', href: '/admin/matches', icon: CalendarDays },
-  { label: 'Predictions', href: '/admin/predictions', icon: CalendarDays },
-  { label: 'Coupons', href: '/admin/coupons', icon: Ticket },
+  { label: 'Manual picks', href: '/admin/predictions', icon: CalendarDays },
   { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { label: 'Blog', href: '/admin/blog', icon: Newspaper },
-  { label: 'Media', href: '/admin/media', icon: ImageIcon },
-  { label: 'SEO', href: '/admin/seo', icon: Search },
-  { label: 'Announcements', href: '/admin/announcements', icon: Megaphone },
-  { label: 'Newsletter', href: '/admin/newsletter', icon: Mail },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
-  { label: 'Audit logs', href: '/admin/audit-logs', icon: ScrollText },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

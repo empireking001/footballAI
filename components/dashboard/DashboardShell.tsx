@@ -8,8 +8,6 @@ import {
   LayoutDashboard,
   Bookmark,
   CreditCard,
-  Gift,
-  Heart,
   Settings,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -21,8 +19,6 @@ const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Saved', href: '/dashboard/saved', icon: Bookmark },
   { label: 'Subscription', href: '/dashboard/subscription', icon: CreditCard },
-  { label: 'Referrals', href: '/dashboard/referrals', icon: Gift },
-  { label: 'Favorites', href: '/dashboard/favorites', icon: Heart },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 

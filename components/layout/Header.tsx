@@ -16,7 +16,6 @@ const NAV_LINKS = [
   { label: "Live", href: "/live" },
   { label: "VIP", href: "/predictions/vip" },
   { label: "Leagues", href: "/leagues" },
-  { label: "Insights", href: "/blog" },
   { label: "Pricing", href: "/pricing" },
 ];
 

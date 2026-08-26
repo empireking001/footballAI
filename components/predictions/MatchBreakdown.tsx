@@ -2,10 +2,9 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ConfidenceBar } from '@/components/ui/ConfidenceBar';
-import { MarketBar } from '@/components/predictions/MarketBar';
 import { Container } from '@/components/ui/Container';
-import { formatKickoff } from '@/lib/utils';
-import { MatchFormItem, Prediction } from '@/types/api';
+import { formatKickoff, formatMatchScore } from '@/lib/utils';
+import { MarketOutcome, MatchFormItem, Prediction } from '@/types/api';
 import { AdBanner } from '@/components/ads/AdBanner';
 
 function TeamCrest({ name, logoUrl, size = 64 }: { name: string; logoUrl?: string; size?: number }) {
@@ -39,6 +38,34 @@ function FormStrip({ label, items }: { label: string; items: MatchFormItem[] }) 
   );
 }
 
+function marketLabel(market: string): string {
+  if (market === '1X2') return 'Match result';
+  if (market === 'BTTS') return 'Both teams to score';
+  if (market === 'Over/Under' || market.startsWith('Over/Under')) return 'Goals market';
+  if (market === 'Double Chance') return 'Double chance';
+  if (market === 'Correct Score') return 'Correct score';
+  return market;
+}
+
+function MarketGroup({ market, items }: { market: string; items: MarketOutcome[] }) {
+  return (
+    <div className="rounded-lg border border-border bg-surface/40 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-foreground">{marketLabel(market)}</h3>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Manual pick</span>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {items.map((item) => (
+          <div key={`${item.market}-${item.selection}`} className="flex items-center justify-between rounded-md border border-border bg-background/50 px-3 py-2.5">
+            <span className="text-sm font-semibold text-foreground">{item.selection}</span>
+            <span className="font-mono text-sm font-bold tabular-nums text-primary">{item.probability.toFixed(0)}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function OddsTable({ prediction }: { prediction: Prediction }) {
   const odds = prediction.match.odds;
   const rows = [['Home', odds?.home], ['Draw', odds?.draw], ['Away', odds?.away], ['Over 2.5', odds?.over25], ['Under 2.5', odds?.under25]] as const;
@@ -55,11 +82,17 @@ function OddsTable({ prediction }: { prediction: Prediction }) {
 
 export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
   const { match } = prediction;
+  const currentScore = formatMatchScore(match.score);
   const correctScores = prediction.markets.filter((item) => item.market === 'Correct Score').slice(0, 5);
   const context = prediction.context;
   const homeStanding = context?.standings.find((row) => typeof row.team === 'object' && row.team?.name === match.homeTeam.name);
   const awayStanding = context?.standings.find((row) => typeof row.team === 'object' && row.team?.name === match.awayTeam.name);
   const winnerMarkets = prediction.markets.filter((item) => item.market === '1X2');
+  const marketGroups = prediction.markets.reduce<Record<string, MarketOutcome[]>>((groups, item) => {
+    const key = item.market.startsWith('Over/Under') ? 'Over/Under' : item.market;
+    groups[key] = [...(groups[key] ?? []), item];
+    return groups;
+  }, {});
 
   return (
     <>
@@ -70,7 +103,7 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
             <div className="flex items-center gap-2 text-sm font-medium text-muted">{match.league.logoUrl && <Image src={match.league.logoUrl} alt="" width={24} height={24} className="h-6 w-6 object-contain" />}<span>{match.league.name} · {formatKickoff(match.kickoffAt)}</span></div>
             <div className="flex gap-2">{prediction.tier === 'vip' && <Badge variant="vip">VIP</Badge>}<Badge variant={`risk-${prediction.riskRating}`}>{prediction.riskRating} risk</Badge></div>
           </div>
-          <div className="mt-8 flex items-center justify-center gap-6 sm:gap-12"><TeamCrest name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} size={80} /><span className="font-display text-2xl text-muted">VS</span><TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} size={80} /></div>
+          <div className="mt-8 flex items-center justify-center gap-6 sm:gap-12"><TeamCrest name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} size={80} /><div className="flex flex-col items-center gap-1"><span className={`font-display text-3xl font-bold tabular-nums ${currentScore ? 'text-primary' : 'text-muted'}`}>{currentScore ?? 'VS'}</span>{currentScore && <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Match score</span>}</div><TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} size={80} /></div>
           {winnerMarkets.length > 0 && <div className="mx-auto mt-8 max-w-lg"><ConfidenceBar home={findMarket(prediction, '1X2', 'Home')} draw={findMarket(prediction, '1X2', 'Draw')} away={findMarket(prediction, '1X2', 'Away')} /></div>}
           {prediction.confidenceScore > 0 && <div className="mx-auto mt-6 flex max-w-lg items-center justify-between border-t border-border pt-4"><span className="text-sm text-muted">Confidence</span><span className="font-mono text-2xl font-bold tabular-nums text-primary">{prediction.confidenceScore}%</span></div>}
         </Container>
@@ -84,7 +117,7 @@ export function MatchBreakdown({ prediction }: { prediction: Prediction }) {
 
           {prediction.keyFactors.length > 0 && <Card><CardContent className="pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Key factors</h2><ul className="mt-3 flex flex-col gap-2.5">{prediction.keyFactors.map((factor, index) => <li key={index} className="flex items-start gap-2.5 text-sm text-foreground/90"><span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />{factor}</li>)}</ul></CardContent></Card>}
 
-          {prediction.markets.length > 0 && <Card><CardContent className="flex flex-col gap-4 pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Manual picks</h2>{prediction.markets.map((market) => <div key={`${market.market}-${market.selection}`} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm"><span className="text-muted">{market.market}</span><span className="font-semibold text-foreground">{market.selection}</span><span className="font-mono text-xs text-muted">{market.probability}%</span></div>)}</CardContent></Card>}
+          {prediction.markets.length > 0 && <Card><CardContent className="flex flex-col gap-4 pt-5"><div><h2 className="font-display text-lg font-bold uppercase tracking-tight">Manual picks</h2><p className="mt-1 text-xs text-muted">Administrator-entered selections by market.</p></div>{Object.entries(marketGroups).map(([market, items]) => <MarketGroup key={market} market={market} items={items} />)}</CardContent></Card>}
         </div>
 
         <div className="flex flex-col gap-6"><OddsTable prediction={prediction} />{correctScores.length > 0 && <Card><CardContent className="pt-5"><h2 className="font-display text-lg font-bold uppercase tracking-tight">Most likely scorelines</h2><ul className="mt-3 flex flex-col gap-2">{correctScores.map((score) => <li key={score.selection} className="flex items-center justify-between rounded-md border border-border px-3 py-2"><span className="font-mono text-sm font-semibold tabular-nums">{score.selection}</span><span className="font-mono text-sm tabular-nums text-muted">{score.probability.toFixed(1)}%</span></li>)}</ul></CardContent></Card>}<p className="px-1 text-xs leading-relaxed text-muted">Entered manually by an administrator. Predictions are informational estimates and not betting advice.</p></div>

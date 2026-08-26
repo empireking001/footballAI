@@ -36,6 +36,33 @@ interface MarketFormValue {
   probability: number | '';
 }
 
+const MARKET_OPTIONS = ['1X2', 'BTTS', 'Over/Under', 'Double Chance', 'Correct Score', 'Other'];
+const MARKET_PRESETS: Record<string, MarketFormValue[]> = {
+  '1X2': [
+    { market: '1X2', selection: 'Home', probability: 50 },
+    { market: '1X2', selection: 'Draw', probability: 25 },
+    { market: '1X2', selection: 'Away', probability: 25 },
+  ],
+  BTTS: [
+    { market: 'BTTS', selection: 'Yes', probability: 55 },
+    { market: 'BTTS', selection: 'No', probability: 45 },
+  ],
+  'Over/Under': [
+    { market: 'Over/Under', selection: 'Over 2.5', probability: 50 },
+    { market: 'Over/Under', selection: 'Under 2.5', probability: 50 },
+  ],
+  'Double Chance': [{ market: 'Double Chance', selection: '1X', probability: 65 }],
+  'Correct Score': [{ market: 'Correct Score', selection: '2-1', probability: 25 }],
+};
+
+function getSelectionOptions(market: string): string[] {
+  if (market === '1X2') return ['Home', 'Draw', 'Away'];
+  if (market === 'BTTS') return ['Yes', 'No'];
+  if (market === 'Over/Under') return ['Over 0.5', 'Under 0.5', 'Over 1.5', 'Under 1.5', 'Over 2.5', 'Under 2.5', 'Over 3.5', 'Under 3.5'];
+  if (market === 'Double Chance') return ['1X', 'X2', '12'];
+  return [];
+}
+
 interface PredictionFormValues {
   tier: PredictionTier;
   isFeatured: boolean;
@@ -55,7 +82,11 @@ const DEFAULT_PREDICTION_VALUES: PredictionFormValues = {
   aiExplanation: '',
   historicalComparison: '',
   keyFactorsText: '',
-  markets: [{ market: '1X2', selection: 'Home', probability: 50 }],
+  markets: [
+    { market: '1X2', selection: 'Home', probability: 50 },
+    { market: '1X2', selection: 'Draw', probability: 25 },
+    { market: '1X2', selection: 'Away', probability: 25 },
+  ],
 };
 
 export default function EditMatchPage({ params }: { params: Promise<{ id: string }> }) {
@@ -116,6 +147,12 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       : DEFAULT_PREDICTION_VALUES,
   });
   const marketFields = useFieldArray({ control: predictionForm.control, name: 'markets' });
+  const watchedMarkets = predictionForm.watch('markets');
+
+  function appendMarketPreset(market: string) {
+    const preset = MARKET_PRESETS[market] ?? [{ market, selection: '', probability: 50 }];
+    preset.forEach((item) => marketFields.append({ ...item }));
+  }
 
   async function onSubmit(values: FormValues) {
     setServerError(null);
@@ -165,13 +202,10 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
 
     try {
       const response = predictionQuery.data
-        ? await apiClient.patch<{ data: Prediction }>(`/admin/predictions/${predictionQuery.data._id}`, {
-            ...(() => {
-              const { matchId: _matchId, ...updatePayload } = payload;
-              return updatePayload;
-            })(),
-            modelVersion: 'manual-v1',
-          })
+        ? await apiClient.patch<{ data: Prediction }>(`/admin/predictions/${predictionQuery.data._id}`, (() => {
+            const { matchId: _matchId, ...updatePayload } = payload;
+            return updatePayload;
+          })())
         : await apiClient.post<{ data: Prediction }>('/admin/predictions/manual', payload);
       queryClient.setQueryData(['admin', 'predictions', 'match', id], response.data.data);
       setPredictionError(null);
@@ -287,23 +321,54 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
               Key factors <span className="font-normal text-muted">(one factor per line)</span>
               <textarea rows={5} {...predictionForm.register('keyFactorsText')} className="w-full rounded-md border border-border bg-surface-elevated px-4 py-3 text-sm text-foreground outline-none focus:border-primary" placeholder="Strong home form\nRecent defensive improvement\nImportant missing player" />
             </label>
-            <div className="rounded-lg border border-border bg-surface/50 p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="rounded-xl border border-border bg-surface/50 p-4 sm:p-5">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">Market selections</h3>
-                  <p className="mt-1 text-xs text-muted">Add the exact pick you want users to see.</p>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">Market selections</h3>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-muted">Choose a market preset to add professional, ready-to-edit rows. Add only the selections you want users to see.</p>
                 </div>
-                <Button type="button" variant="secondary" onClick={() => marketFields.append({ market: '', selection: '', probability: 50 })}>Add market</Button>
+                <Button type="button" variant="secondary" onClick={() => appendMarketPreset('Other')}>Add custom market</Button>
+              </div>
+              <div className="mb-5 flex flex-wrap gap-2">
+                {MARKET_OPTIONS.slice(0, -1).map((market) => (
+                  <Button key={market} type="button" variant="secondary" onClick={() => appendMarketPreset(market)}>{market}</Button>
+                ))}
               </div>
               <div className="flex flex-col gap-3">
-                {marketFields.fields.map((field, index) => (
-                  <div key={field.id} className="grid gap-2 sm:grid-cols-[1fr_1.2fr_100px_auto] sm:items-end">
-                    <Input label="Market" placeholder="1X2 / BTTS / Correct Score" {...predictionForm.register(`markets.${index}.market`)} />
-                    <Input label="Selection" placeholder="Home / Yes / 2-1" {...predictionForm.register(`markets.${index}.selection`)} />
-                    <Input label="Probability %" type="number" min="0" max="100" {...predictionForm.register(`markets.${index}.probability`, { setValueAs: (value) => value === '' ? '' : Number(value) })} />
-                    <Button type="button" variant="secondary" onClick={() => marketFields.remove(index)} disabled={marketFields.fields.length === 1}>Remove</Button>
-                  </div>
-                ))}
+                {marketFields.fields.map((field, index) => {
+                  const market = watchedMarkets?.[index]?.market ?? field.market;
+                  const selectionOptions = getSelectionOptions(market);
+                  const currentSelection = watchedMarkets?.[index]?.selection ?? field.selection;
+                  return (
+                    <div key={field.id} className="rounded-lg border border-border bg-background/40 p-3 sm:p-4">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className="font-mono text-[10px] uppercase tracking-widest text-primary">Market {index + 1}</span>
+                        <Button type="button" variant="secondary" onClick={() => marketFields.remove(index)} disabled={marketFields.fields.length === 1}>Remove</Button>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-[1fr_1.4fr_120px] md:items-end">
+                        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
+                          Market type
+                          <select {...predictionForm.register(`markets.${index}.market`)} className="h-11 rounded-md border border-border bg-surface-elevated px-3 text-sm text-foreground">
+                            {MARKET_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+                          </select>
+                        </label>
+                        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
+                          Selection
+                          {selectionOptions.length > 0 ? (
+                            <select {...predictionForm.register(`markets.${index}.selection`)} className="h-11 rounded-md border border-border bg-surface-elevated px-3 text-sm text-foreground">
+                              {!selectionOptions.includes(currentSelection) && currentSelection && <option value={currentSelection}>{currentSelection}</option>}
+                              {selectionOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                            </select>
+                          ) : (
+                            <Input label="Selection" placeholder={market === 'Correct Score' ? 'e.g. 2-1' : 'Type the selection'} {...predictionForm.register(`markets.${index}.selection`)} />
+                          )}
+                        </label>
+                        <Input label="Probability %" type="number" min="0" max="100" {...predictionForm.register(`markets.${index}.probability`, { setValueAs: (value) => value === '' ? '' : Number(value) })} />
+                      </div>
+                      {market === 'Correct Score' && <p className="mt-2 text-xs text-muted">Use the standard scoreline format: home goals–away goals.</p>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             {predictionError && <p className="text-sm text-danger">{predictionError}</p>}

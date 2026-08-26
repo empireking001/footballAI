@@ -11,11 +11,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Football AI — AI-Powered Football Predictions',
+    default: 'Football AI — Live Fixtures and Manual Picks',
     template: '%s | Football AI',
   },
   description:
-    'AI-powered football predictions, match analysis, and statistics — 1X2, BTTS, Over/Under, correct score, and more, backed by a statistical model with a tracked accuracy record.',
+    'Live football fixtures, scores, odds, leagues, and administrator-entered picks — 1X2, BTTS, Over/Under, correct score, and more.',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

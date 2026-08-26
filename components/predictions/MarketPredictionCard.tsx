@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { MarketBar } from '@/components/predictions/MarketBar';
 import { SaveButton } from '@/components/predictions/SaveButton';
-import { formatKickoff } from '@/lib/utils';
+import { formatKickoff, formatMatchScore } from '@/lib/utils';
 import { Prediction } from '@/types/api';
 
 type MarketView = 'btts' | 'over-under' | 'correct-score' | 'double-chance';
@@ -24,8 +24,12 @@ function TeamCrest({ name, logoUrl }: { name: string; logoUrl?: string }) {
   );
 }
 
-function findMarket(prediction: Prediction, market: string, selection: string): number {
-  return prediction.markets.find((m) => m.market === market && m.selection === selection)?.probability ?? 0;
+function findMarketValue(
+  prediction: Prediction,
+  marketMatches: (market: string) => boolean,
+  selectionMatches: (selection: string) => boolean,
+): number {
+  return prediction.markets.find((item) => marketMatches(item.market) && selectionMatches(item.selection))?.probability ?? 0;
 }
 
 function MarketHighlight({ prediction, view }: { prediction: Prediction; view: MarketView }) {
@@ -34,24 +38,24 @@ function MarketHighlight({ prediction, view }: { prediction: Prediction; view: M
       return (
         <MarketBar
           label="Both teams to score"
-          optionA={{ label: 'Yes', value: findMarket(prediction, 'BTTS', 'Yes') }}
-          optionB={{ label: 'No', value: findMarket(prediction, 'BTTS', 'No') }}
+          optionA={{ label: 'Yes', value: findMarketValue(prediction, (market) => market === 'BTTS', (selection) => selection === 'Yes') }}
+          optionB={{ label: 'No', value: findMarketValue(prediction, (market) => market === 'BTTS', (selection) => selection === 'No') }}
         />
       );
     case 'over-under':
       return (
         <MarketBar
           label="Over/Under 2.5 goals"
-          optionA={{ label: 'Over', value: findMarket(prediction, 'Over/Under 2.5', 'Over') }}
-          optionB={{ label: 'Under', value: findMarket(prediction, 'Over/Under 2.5', 'Under') }}
+          optionA={{ label: 'Over', value: findMarketValue(prediction, (market) => market === 'Over/Under' || market.startsWith('Over/Under'), (selection) => selection.startsWith('Over')) }}
+          optionB={{ label: 'Under', value: findMarketValue(prediction, (market) => market === 'Over/Under' || market.startsWith('Over/Under'), (selection) => selection.startsWith('Under')) }}
         />
       );
     case 'double-chance':
       return (
         <MarketBar
           label="Double chance"
-          optionA={{ label: '1X', value: findMarket(prediction, 'Double Chance', 'Home or Draw') }}
-          optionB={{ label: 'X2', value: findMarket(prediction, 'Double Chance', 'Draw or Away') }}
+          optionA={{ label: '1X', value: findMarketValue(prediction, (market) => market === 'Double Chance', (selection) => selection === '1X' || selection === 'Home or Draw') }}
+          optionB={{ label: 'X2', value: findMarketValue(prediction, (market) => market === 'Double Chance', (selection) => selection === 'X2' || selection === 'Draw or Away') }}
         />
       );
     case 'correct-score': {
@@ -83,6 +87,7 @@ function MarketHighlight({ prediction, view }: { prediction: Prediction; view: M
 
 export function MarketPredictionCard({ prediction, view }: { prediction: Prediction; view: MarketView }) {
   const { match } = prediction;
+  const currentScore = formatMatchScore(match.score);
 
   return (
     <Card className="h-full">
@@ -95,8 +100,9 @@ export function MarketPredictionCard({ prediction, view }: { prediction: Predict
       </CardHeader>
       <CardContent>
         <Link href={`/matches/${match._id}`} className="block">
-          <div className="mb-4 flex flex-col gap-2">
+          <div className="mb-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
             <TeamCrest name={match.homeTeam.name} logoUrl={match.homeTeam.logoUrl} />
+            <span className={`font-display text-xl font-bold tabular-nums ${currentScore ? 'text-primary' : 'text-muted'}`}>{currentScore ?? 'VS'}</span>
             <TeamCrest name={match.awayTeam.name} logoUrl={match.awayTeam.logoUrl} />
           </div>
           <span className="mb-3 block font-mono text-[11px] tabular-nums text-muted">

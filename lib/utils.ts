@@ -40,6 +40,11 @@ export function formatKickoff(iso: string, timeZone = 'Africa/Lagos'): string {
   }).format(date)}, ${time}`;
 }
 
+export function formatMatchScore(score?: { homeFullTime?: number; awayFullTime?: number }): string | null {
+  if (score?.homeFullTime === undefined || score.awayFullTime === undefined) return null;
+  return `${score.homeFullTime}–${score.awayFullTime}`;
+}
+
 export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(
     amount,
