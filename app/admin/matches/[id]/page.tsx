@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
@@ -64,6 +64,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
   const [saved, setSaved] = useState(false);
   const [predictionSaved, setPredictionSaved] = useState(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError: isMatchError, error: matchError } = useQuery({
     queryKey: ['admin', 'matches', id],
@@ -158,21 +159,22 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
     };
 
     if (markets.length === 0) {
-      setPredictionError('Add at least one market selection before saving. The AI explanation and confidence fields are optional.');
+      setPredictionError('Add at least one market selection before saving. Notes and confidence are optional.');
       return;
     }
 
     try {
-      if (predictionQuery.data) {
-        const { matchId: _matchId, ...updatePayload } = payload;
-        await apiClient.patch(`/admin/predictions/${predictionQuery.data._id}`, {
-          ...updatePayload,
-          modelVersion: 'manual-v1',
-        });
-      } else {
-        await apiClient.post('/admin/predictions/manual', payload);
-      }
-      await predictionQuery.refetch();
+      const response = predictionQuery.data
+        ? await apiClient.patch<{ data: Prediction }>(`/admin/predictions/${predictionQuery.data._id}`, {
+            ...(() => {
+              const { matchId: _matchId, ...updatePayload } = payload;
+              return updatePayload;
+            })(),
+            modelVersion: 'manual-v1',
+          })
+        : await apiClient.post<{ data: Prediction }>('/admin/predictions/manual', payload);
+      queryClient.setQueryData(['admin', 'predictions', 'match', id], response.data.data);
+      setPredictionError(null);
       setPredictionSaved(true);
       setTimeout(() => setPredictionSaved(false), 2000);
     } catch (error) {
@@ -241,7 +243,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
       <section className="mt-10 max-w-3xl rounded-lg border border-primary/25 bg-primary/[0.04] p-5 sm:p-6">
         <div className="mb-5">
           <h2 className="font-display text-lg font-bold uppercase tracking-tight">Manual prediction editor</h2>
-          <p className="mt-1 text-sm leading-6 text-muted">Type your own prediction for this match, or revise the existing AI/manual prediction. Saving replaces the prediction attached to this fixture.</p>
+          <p className="mt-1 text-sm leading-6 text-muted">Type your own prediction for this match, or revise the existing manual pick. Saving replaces the pick attached to this fixture.</p>
         </div>
         {predictionQuery.isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted"><Loader2 className="h-4 w-4 animate-spin" /> Loading prediction…</div>
@@ -274,7 +276,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
               Feature this prediction on public surfaces
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-              Explanation <span className="font-normal text-muted">(optional — not required for manual predictions)</span>
+              Prediction note <span className="font-normal text-muted">(optional)</span>
               <textarea rows={7} {...predictionForm.register('aiExplanation')} className="w-full rounded-md border border-border bg-surface-elevated px-4 py-3 text-sm text-foreground outline-none focus:border-primary" />
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
@@ -307,7 +309,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
             {predictionError && <p className="text-sm text-danger">{predictionError}</p>}
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={predictionForm.formState.isSubmitting} className="w-fit">
-                {predictionForm.formState.isSubmitting ? 'Saving prediction…' : predictionQuery.data ? 'Save prediction changes' : 'Create manual prediction'}
+                {predictionForm.formState.isSubmitting ? 'Saving…' : predictionQuery.data ? 'Save prediction changes' : 'Create manual prediction'}
               </Button>
               {predictionSaved && <span className="text-sm text-live">Prediction saved</span>}
             </div>

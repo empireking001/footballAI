@@ -12,10 +12,10 @@ export function FixtureStrip({ predictions }: { predictions: Prediction[] }) {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-primary">
-              Latest predictions
+              Latest manual picks
             </span>
             <h2 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-              Fresh off the model
+              Latest administrator picks
             </h2>
           </div>
           <Link
@@ -34,13 +34,13 @@ export function FixtureStrip({ predictions }: { predictions: Prediction[] }) {
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted">
-            No predictions available right now — new ones are generated automatically as fixtures
+            No manual picks are available right now — administrators add picks as fixtures
             approach.
           </div>
         )}
 
         <Button variant="secondary" className="mt-6 w-full sm:hidden" asChild>
-          <Link href="/predictions/today">View all predictions</Link>
+          <Link href="/predictions/today">View all picks</Link>
         </Button>
       </Container>
     </section>

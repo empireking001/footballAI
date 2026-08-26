@@ -7,7 +7,7 @@ import { AdBanner } from '@/components/ads/AdBanner';
 
 export const metadata: Metadata = {
   title: 'Leagues',
-  description: 'Browse every league and competition covered by Football AI predictions.',
+  description: 'Browse every league and competition covered by Football AI manual picks.',
 };
 
 export default async function LeaguesPage() {
@@ -23,7 +23,7 @@ export default async function LeaguesPage() {
             Leagues &amp; Competitions
           </h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Every league we cover, with predictions generated automatically as fixtures approach.
+            Every league we cover, with fixtures and administrator-entered picks organized by kickoff date.
           </p>
         </Container>
       </div>

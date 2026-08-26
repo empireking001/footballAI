@@ -29,7 +29,7 @@ export async function MarketPredictionsPage({ eyebrow, title, subtitle, view }: 
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-border p-12 text-center text-sm text-muted">
-            No predictions available right now — check back soon.
+            No manual picks are available right now — check back soon.
           </div>
         )}
       </Container>

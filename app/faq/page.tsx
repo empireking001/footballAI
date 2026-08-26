@@ -3,17 +3,17 @@ import { Container } from '@/components/ui/Container';
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Frequently asked questions about Football AI predictions, VIP, and accuracy.',
+  description: 'Frequently asked questions about Football AI manual picks, VIP access, and accuracy.',
 };
 
 const FAQS = [
   {
-    q: 'How are predictions generated?',
-    a: 'Each match gets an expected-goals rate (Poisson model) built from recent form, home/away splits, and head-to-head history. Every market — winner, BTTS, over/under, correct score — is derived from that single statistical grid, so the numbers are internally consistent.',
+    q: 'How are picks prepared?',
+    a: 'An administrator reviews the available fixture information and types the markets, selections, probabilities, and notes shown on the site. Live fixture, score, league, team, and odds data continue to update automatically.',
   },
   {
     q: 'What does the confidence score mean?',
-    a: "It blends how decisive the model's own probabilities are with how much real match data backed the calculation. A 90% confidence pick had both a clear statistical favorite and a solid sample of recent matches to draw on.",
+    a: 'It is an optional confidence assessment entered by the administrator to communicate how strongly the pick is rated. It is not a guarantee of the result.',
   },
   {
     q: 'Is this betting advice?',
@@ -21,11 +21,11 @@ const FAQS = [
   },
   {
     q: "What's the difference between Free and VIP?",
-    a: 'Free predictions cover the core markets for a curated set of matches daily. VIP unlocks the full market breakdown — correct score, cards, corners — across more fixtures, generated from the same underlying model.',
+    a: 'Free picks cover the core markets for a curated set of matches. VIP can unlock administrator-entered picks and expanded market detail across more fixtures, depending on the tier assigned to each pick.',
   },
   {
     q: 'How do I know the accuracy numbers are real?',
-    a: 'Every prediction is automatically compared against the final result once a match finishes. The accuracy stats on our home page are a live, unfiltered average across every graded prediction — including ones the model got wrong.',
+    a: 'Every manual pick is compared against the final result once a match finishes. The accuracy stats on our home page are based on graded manual picks, including picks that were incorrect.',
   },
   {
     q: 'Can I cancel my VIP subscription?',

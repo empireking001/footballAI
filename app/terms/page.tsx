@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/legal/LegalPage';
 
-// NOTE FOR THE TEAM: standard template terms covering account use, the
-// statistical/informational nature of predictions (important for
+// NOTE FOR THE TEAM: standard template terms covering account use, the informational nature of administrator-entered picks (important for
 // limiting liability around gambling-adjacent content), and subscription
 // billing. Have a lawyer review before launch, especially around local
 // gambling-adjacent-content regulations in the jurisdictions you operate.
@@ -21,9 +20,9 @@ export default function TermsOfServicePage() {
 
       <h2>1. Not betting advice</h2>
       <p>
-        Football AI provides statistically generated predictions and analysis for informational and
-        entertainment purposes only. Predictions are estimates based on historical data and are not
-        guaranteed to be accurate. Nothing on this site constitutes betting, financial, or
+        Football AI provides administrator-entered football picks and match information for informational
+        and entertainment purposes only. Picks are estimates informed by available match data and are
+        not guaranteed to be accurate. Nothing on this site constitutes betting, financial, or
         professional advice. You are solely responsible for any decisions you make based on content
         from this site, including any wagering decisions. Please gamble responsibly and only within
         your means; if you or someone you know has a gambling problem, seek help from a licensed

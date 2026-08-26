@@ -6,7 +6,7 @@ import { Team } from '@/types/api';
 
 export const metadata: Metadata = {
   title: 'Teams',
-  description: 'Search and browse every team covered by Football AI predictions.',
+  description: 'Search and browse every team covered by Football AI manual picks.',
 };
 
 export default async function TeamsPage() {
@@ -21,7 +21,7 @@ export default async function TeamsPage() {
             Teams
           </h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Search for any team to see their upcoming AI predictions.
+            Search for any team to see their upcoming fixtures and administrator-entered picks.
           </p>
         </Container>
       </div>

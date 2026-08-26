@@ -15,8 +15,8 @@ interface ConfidenceBarProps {
 /**
  * The site's signature element — a broadcast-style segmented probability
  * bar. Appears identically in the hero and every prediction card so the
- * shape becomes recognizable: this is what an AI prediction *looks like*
- * on this site, the same way a Sky Sports graphic has its own signature.
+ * shape becomes recognizable across the site's manual-pick cards, the same way
+ * a broadcast graphic has its own signature.
  */
 export function ConfidenceBar({
   home,

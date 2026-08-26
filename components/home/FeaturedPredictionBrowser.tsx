@@ -27,10 +27,10 @@ export function FeaturedPredictionBrowser({
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-primary">Curated feed</span>
-            <h2 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight">Featured predictions</h2>
-            <p className="mt-2 max-w-xl text-sm text-muted">Browse automatically generated predictions by kickoff date. Featured status and VIP access are curated by the Football AI team.</p>
+            <h2 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight">Featured manual picks</h2>
+            <p className="mt-2 max-w-xl text-sm text-muted">Browse administrator-entered picks by kickoff date. Featured status and VIP access are curated by the Football AI team.</p>
           </div>
-          <Link href="/predictions/today" className="text-sm font-semibold text-primary hover:underline">View full predictions</Link>
+          <Link href="/predictions/today" className="text-sm font-semibold text-primary hover:underline">View all picks</Link>
         </div>
 
         <div className="mt-7 flex gap-2 border-b border-border">
@@ -49,7 +49,7 @@ export function FeaturedPredictionBrowser({
         </div>
 
         {activePredictions.length === 0 ? (
-          <div className="mt-8 rounded-lg border border-dashed border-border px-6 py-12 text-center text-sm text-muted">No featured predictions are available for this date window yet.</div>
+          <div className="mt-8 rounded-lg border border-dashed border-border px-6 py-12 text-center text-sm text-muted">No featured manual picks are available for this date window yet.</div>
         ) : (
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {activePredictions.map((prediction) => (
@@ -60,8 +60,8 @@ export function FeaturedPredictionBrowser({
                 {prediction.tier === 'vip' && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-surface/45 p-5 text-center backdrop-blur-[1px]">
                     <div className="rounded-lg border border-primary/30 bg-background/95 p-5 shadow-lg">
-                      <p className="font-display text-lg font-bold uppercase tracking-tight">VIP prediction</p>
-                      <p className="mt-2 text-sm text-muted">Unlock the full pick and supporting analysis for this featured match.</p>
+                      <p className="font-display text-lg font-bold uppercase tracking-tight">VIP manual pick</p>
+                      <p className="mt-2 text-sm text-muted">Unlock the full pick and supporting note for this featured match.</p>
                       <Link href="/pricing" className="mt-4 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">Upgrade to VIP</Link>
                     </div>
                   </div>
