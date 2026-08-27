@@ -132,6 +132,19 @@ export interface Prediction {
   aiExplanation: string;
   historicalComparison?: string;
   modelVersion: string;
+  actualResult?: {
+    homeScore: number;
+    awayScore: number;
+  };
+  accuracy?: {
+    winnerCorrect?: boolean;
+    correctScoreCorrect?: boolean;
+    bttsCorrect?: boolean;
+    overUnderCorrect?: boolean;
+    doubleChanceCorrect?: boolean;
+    evaluationVersion?: number;
+    evaluatedAt?: string;
+  };
   context?: MatchContext;
 }
 

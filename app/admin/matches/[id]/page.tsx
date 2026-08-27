@@ -7,9 +7,11 @@ import { Loader2 } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { adminGet, adminUpdate } from '@/lib/api/admin';
 import { apiClient } from '@/lib/api/client';
 import { Match, MatchStatus, Prediction, PredictionTier, RiskRating } from '@/types/api';
+import { formatMatchScore } from '@/lib/utils';
 
 const STATUS_OPTIONS: MatchStatus[] = [
   'scheduled',
@@ -88,6 +90,47 @@ const DEFAULT_PREDICTION_VALUES: PredictionFormValues = {
     { market: '1X2', selection: 'Away', probability: 25 },
   ],
 };
+
+function marketResult(prediction: Prediction, market: Prediction['markets'][number]): boolean | 'pending' | 'unsupported' {
+  if (prediction.match.status !== 'finished' || !prediction.accuracy?.evaluatedAt) return 'pending';
+  if (market.market === '1X2') return prediction.accuracy.winnerCorrect ?? 'unsupported';
+  if (market.market === 'BTTS') return prediction.accuracy.bttsCorrect ?? 'unsupported';
+  if (market.market.startsWith('Over/Under')) return prediction.accuracy.overUnderCorrect ?? 'unsupported';
+  if (market.market === 'Double Chance') return prediction.accuracy.doubleChanceCorrect ?? 'unsupported';
+  if (market.market === 'Correct Score') return prediction.accuracy.correctScoreCorrect ?? 'unsupported';
+  return 'unsupported';
+}
+
+function ResultsReview({ match, prediction }: { match: Match; prediction?: Prediction | null }) {
+  if (!prediction) return null;
+  const finalScore = formatMatchScore(match.score);
+  const isFinished = match.status === 'finished';
+  return (
+    <section className="mt-10 max-w-3xl rounded-lg border border-border bg-surface/50 p-5 sm:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">Prediction result</h2>
+          <p className="mt-1 text-sm leading-6 text-muted">Compare the saved manual selections with the official final score. No result is recorded until the fixture is finished.</p>
+        </div>
+        <Badge variant={isFinished ? 'live' : 'default'}>{isFinished ? finalScore ? `Final score ${finalScore}` : 'Finished — score missing' : 'Awaiting kickoff'}</Badge>
+      </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-2">
+        {prediction.markets.map((market, index) => {
+          const result = marketResult(prediction, market);
+          return (
+            <div key={`${market.market}-${market.selection}-${index}`} className="flex items-center justify-between gap-3 rounded-md border border-border bg-background/40 px-3 py-2.5 text-sm">
+              <span className="text-muted">{market.market}: <span className="font-semibold text-foreground">{market.selection}</span></span>
+              {result === 'pending' && <Badge variant="default">Awaiting review</Badge>}
+              {result === 'unsupported' && <Badge variant="default">Manual review</Badge>}
+              {typeof result === 'boolean' && <Badge variant={result ? 'live' : 'risk-high'}>{result ? 'Correct' : 'Missed'}</Badge>}
+            </div>
+          );
+        })}
+      </div>
+      {prediction.accuracy?.evaluatedAt && <p className="mt-4 text-xs text-muted">Reviewed {new Date(prediction.accuracy.evaluatedAt).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}.</p>}
+    </section>
+  );
+}
 
 export default function EditMatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -188,6 +231,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
         },
       });
       queryClient.setQueryData(['admin', 'matches', id], updatedMatch);
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'predictions', 'match', id] });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
@@ -301,6 +345,8 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           {saved && <span className="text-sm text-live">Match details saved</span>}
         </div>
       </form>
+
+      <ResultsReview match={data} prediction={predictionQuery.data} />
 
       <section className="mt-10 max-w-3xl rounded-lg border border-primary/25 bg-primary/[0.04] p-5 sm:p-6">
         <div className="mb-5">
