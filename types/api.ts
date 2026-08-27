@@ -76,6 +76,8 @@ export interface Match {
     awayHalfTime?: number;
   };
   odds?: MatchOdds;
+  resultLocked?: boolean;
+  resultLockedAt?: string;
   intelligence?: MatchContext;
 }
 
@@ -145,6 +147,7 @@ export interface Prediction {
     evaluationVersion?: number;
     evaluatedAt?: string;
   };
+  isVipLocked?: boolean;
   context?: MatchContext;
 }
 

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { MarketBar } from '@/components/predictions/MarketBar';
 import { SaveButton } from '@/components/predictions/SaveButton';
+import { PredictionOutcomeBadge } from '@/components/predictions/PredictionOutcomeBadge';
 import { formatKickoff, formatMatchScore } from '@/lib/utils';
 import { Prediction } from '@/types/api';
 
@@ -95,6 +96,7 @@ export function MarketPredictionCard({ prediction, view }: { prediction: Predict
         <span className="truncate text-xs font-medium text-muted">{match.league.name}</span>
         <div className="flex items-center gap-1.5">
           {prediction.tier === 'vip' && <Badge variant="vip">VIP</Badge>}
+          <PredictionOutcomeBadge prediction={prediction} />
           <SaveButton predictionId={prediction._id} />
         </div>
       </CardHeader>

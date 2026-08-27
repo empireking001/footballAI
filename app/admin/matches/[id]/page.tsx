@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LockKeyhole, UnlockKeyhole } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { adminGet, adminUpdate } from '@/lib/api/admin';
 import { apiClient } from '@/lib/api/client';
 import { Match, MatchStatus, Prediction, PredictionTier, RiskRating } from '@/types/api';
+import { useAuthStore } from '@/store/authStore';
 import { formatMatchScore } from '@/lib/utils';
 
 const STATUS_OPTIONS: MatchStatus[] = [
@@ -140,7 +141,12 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
   const [predictionError, setPredictionError] = useState<string | null>(null);
   const [draftSaved, setDraftSaved] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [lockBusy, setLockBusy] = useState(false);
+  const [lockMessage, setLockMessage] = useState<string | null>(null);
+  const [lockError, setLockError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const isSuperAdmin = user?.role === 'super_admin';
 
   const { data, isLoading, isError: isMatchError, error: matchError } = useQuery({
     queryKey: ['admin', 'matches', id],
@@ -284,6 +290,26 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
     }
   }
 
+  const resultLocked = data?.resultLocked === true || data?.status === 'finished';
+  const canEditResult = !resultLocked || isSuperAdmin;
+
+  async function changeResultLock(action: 'lock-result' | 'unlock-result') {
+    setLockBusy(true);
+    setLockMessage(null);
+    setLockError(null);
+    try {
+      const response = await apiClient.post<{ data: Match; message?: string }>(`/admin/matches/${id}/${action}`);
+      queryClient.setQueryData(['admin', 'matches', id], response.data.data);
+      setLockMessage(response.data.message ?? (action === 'lock-result' ? 'Final result locked.' : 'Result unlocked for correction.'));
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'predictions', 'match', id] });
+    } catch (error) {
+      const message = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
+      setLockError(message ?? 'Unable to update the result lock.');
+    } finally {
+      setLockBusy(false);
+    }
+  }
+
   if (isMatchError) {
     return <div className="rounded-lg border border-danger/30 bg-danger/5 p-6 text-sm text-danger">Unable to load this match: {matchError instanceof Error ? matchError.message : 'The admin API returned an error.'}</div>;
   }
@@ -300,7 +326,37 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
     <div>
       <AdminPageHeader title={`${data.homeTeam.name} vs ${data.awayTeam.name}`} />
 
+      <div className="mb-6 max-w-3xl rounded-lg border border-border bg-surface/50 p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              {resultLocked ? <LockKeyhole className="h-4 w-4 text-primary" /> : <UnlockKeyhole className="h-4 w-4 text-muted" />}
+              {resultLocked ? 'Final result locked' : 'Result not locked'}
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              {resultLocked
+                ? isSuperAdmin
+                  ? 'This result is read-only for ordinary admins. You can unlock it temporarily to correct the official score or fixture details.'
+                  : 'This finished result is read-only. Ask a super-admin to unlock it if an official correction is required.'
+                : data.status === 'finished'
+                  ? 'Review the final score and prediction outcome, then lock the result to prevent accidental changes.'
+                  : 'The result can be locked after the fixture is finished and the final score is saved.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {resultLocked ? (
+              isSuperAdmin && <Button type="button" variant="secondary" onClick={() => changeResultLock('unlock-result')} disabled={lockBusy}>{lockBusy ? 'Unlocking…' : 'Unlock for correction'}</Button>
+            ) : (
+              data.status === 'finished' && data.score?.homeFullTime !== undefined && data.score?.awayFullTime !== undefined && <Button type="button" variant="secondary" onClick={() => changeResultLock('lock-result')} disabled={lockBusy}>{lockBusy ? 'Locking…' : 'Lock final result'}</Button>
+            )}
+          </div>
+        </div>
+        {lockMessage && <p className="mt-3 text-sm text-live">{lockMessage}</p>}
+        {lockError && <p className="mt-3 text-sm text-danger">{lockError}</p>}
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="flex max-w-lg flex-col gap-4">
+        <fieldset disabled={!canEditResult} className="flex flex-col gap-4">
         <div className="border-b border-border pb-3">
           <h2 className="font-display text-lg font-bold uppercase tracking-tight">Match details</h2>
           <p className="mt-1 text-sm text-muted">Save the score and fixture information separately from the manual pick.</p>
@@ -344,6 +400,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           </Button>
           {saved && <span className="text-sm text-live">Match details saved</span>}
         </div>
+        </fieldset>
       </form>
 
       <ResultsReview match={data} prediction={predictionQuery.data} />
@@ -357,6 +414,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
           <div className="flex items-center gap-2 text-sm text-muted"><Loader2 className="h-4 w-4 animate-spin" /> Loading prediction…</div>
         ) : (
           <form onSubmit={predictionForm.handleSubmit(onPredictionSubmit)} className="flex flex-col gap-4">
+            <fieldset disabled={!canEditResult} className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
                 Tier
@@ -475,6 +533,7 @@ export default function EditMatchPage({ params }: { params: Promise<{ id: string
               {draftSaved && <span className="text-sm text-muted">Draft saved on this browser</span>}
               {predictionSaved && <span className="text-sm text-live">Published successfully</span>}
             </div>
+            </fieldset>
           </form>
         )}
       </section>
