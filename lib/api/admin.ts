@@ -25,7 +25,7 @@ function normalizePagination(
 
 /**
  * Generic, typed helpers for /admin/* CRUD endpoints.
- * Every admin entity page (leagues, predictions, users, coupons, blog posts, etc.)
+ * Every active admin entity page (leagues, predictions, users, subscriptions, etc.)
  * leverages these core functions to execute API requests cleanly.
  */
 
@@ -66,6 +66,22 @@ export async function adminUpdate<T, P = unknown>(
   body: P,
 ): Promise<T> {
   const { data } = await apiClient.patch<ApiResponse<T>>(`/admin/${resource}/${id}`, body);
+  return data.data;
+}
+
+export async function adminCreateManualMatch(body: {
+  leagueName: string;
+  leagueCountry?: string;
+  season?: number;
+  homeTeamName: string;
+  awayTeamName: string;
+  homeTeamLogoUrl?: string;
+  awayTeamLogoUrl?: string;
+  kickoffAt: string;
+  venue?: string;
+  referee?: string;
+}): Promise<unknown> {
+  const { data } = await apiClient.post<ApiResponse<unknown>>('/admin/matches/manual', body);
   return data.data;
 }
 

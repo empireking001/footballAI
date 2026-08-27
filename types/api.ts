@@ -144,18 +144,6 @@ export interface FixtureFeedItem {
   isVipLocked: boolean;
 }
 
-export interface BlogPostSummary {
-  _id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  coverImageUrl?: string;
-  category?: string;
-  tags: string[];
-  publishedAt?: string;
-  author: { name: string; avatarUrl?: string };
-}
-
 export interface Announcement {
   _id: string;
   title: string;
@@ -213,22 +201,6 @@ export interface Coupon {
   usedCount: number;
   expiresAt?: string;
   isActive: boolean;
-}
-
-export interface AdminBlogPost {
-  _id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  coverImageUrl?: string;
-  category?: string;
-  tags: string[];
-  status: "draft" | "published";
-  publishedAt?: string;
-  views: number;
-  metaTitle?: string;
-  metaDescription?: string;
 }
 
 export interface Plan {

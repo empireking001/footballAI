@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -72,6 +73,7 @@ export default function AdminMatchesPage() {
       <AdminPageHeader
         title="Matches"
         subtitle="Start with upcoming fixtures to write predictions, then use the status filters for live monitoring, score corrections, and historical review."
+        action={<Link href="/admin/matches/new" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Create manual fixture</Link>}
       />
       <div className="mb-4 flex gap-2 overflow-x-auto">
         {STATUS_OPTIONS.map((option) => (

@@ -61,7 +61,7 @@ export default function AdminMediaPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Media library" subtitle="Upload images for blog posts, teams, leagues, and settings." />
+      <AdminPageHeader title="Media library" subtitle="Upload images for teams, leagues, fixtures, and site settings." />
 
       <div className="mb-6">
         <input ref={fileInputRef} type="file" accept="image/*,video/mp4" className="hidden" onChange={handleFileChange} />
