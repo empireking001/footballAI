@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { fetchApi } from '@/lib/api/server';
 import { Prediction } from '@/types/api';
-import { formatKickoff, formatMatchScore } from '@/lib/utils';
+import { formatMatchScore } from '@/lib/utils';
 
 function marketResult(prediction: Prediction, market: Prediction['markets'][number]): boolean | 'pending' | 'unsupported' {
   if (prediction.isVipLocked) return 'pending';
@@ -48,7 +48,7 @@ function RecentResultCard({ prediction }: { prediction: Prediction }) {
           <Link href={`/matches/${prediction.match._id}`} className="mt-1 block text-sm font-semibold text-foreground hover:text-primary">
             {prediction.match.homeTeam.name} vs {prediction.match.awayTeam.name}
           </Link>
-          <p className="mt-1 text-[11px] text-muted">{formatKickoff(prediction.match.kickoffAt)}</p>
+          <p className="mt-1 text-[11px] text-muted">{new Date(prediction.match.kickoffAt).toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' })} WAT</p>
         </div>
         <Badge variant={summary.variant}><span className="mr-1 inline-flex">{summary.icon}</span>{summary.label}</Badge>
       </CardHeader>
@@ -106,8 +106,7 @@ export async function RecentResults({ days = 7 }: { days?: number }) {
             return (
               <div key={dateKey}>
                 <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
-                  <span className="rounded-full bg-primary/15 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-primary">{date.toLocaleDateString('en-NG', { weekday: 'short' })}</span>
-                  <h3 className="font-display text-lg font-bold uppercase tracking-tight text-foreground">{date.toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                  <h3 className="font-display text-base font-bold uppercase tracking-[0.08em] text-foreground sm:text-lg">{date.toLocaleDateString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Lagos' })}</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{dayPredictions.map((prediction) => <RecentResultCard key={prediction._id} prediction={prediction} />)}</div>
               </div>
