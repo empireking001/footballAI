@@ -4,16 +4,20 @@ import { Container } from '@/components/ui/Container';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { FixtureFeed } from '@/components/predictions/FixtureFeed';
-import { fetchApi } from '@/lib/api/server';
+import { fetchApi, getSiteName } from '@/lib/api/server';
 import { FixtureFeedItem } from '@/types/api';
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Football AI | Manual football predictions and live fixtures',
-  description: 'Browse upcoming football fixtures and administrator-entered football predictions across the next seven days.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: `${siteName} | Manual football picks and live fixtures`,
+    description: 'Browse upcoming football fixtures and administrator-entered football predictions across the next seven days.',
+  };
+}
 
 export default async function HomePage() {
+  const siteName = await getSiteName();
   const [{ data: feed }, { data: stats }] = await Promise.all([
     fetchApi<FixtureFeedItem[]>('/predictions/feed?when=week&limit=9', { cache: 'no-store' }),
     fetchApi<{ leaguesCovered: number }>('/stats', { revalidate: 900, tags: ['stats'] }),
@@ -29,7 +33,7 @@ export default async function HomePage() {
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary"><PenLine className="h-3.5 w-3.5" /> Manual match centre</div>
             <h1 className="font-display text-5xl font-bold uppercase leading-[0.95] tracking-tight text-foreground sm:text-7xl">Know what is next before kickoff.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg">Browse upcoming fixtures, live scores, team context, and clear predictions entered and managed by the Football AI team. Every fixture stays visible while you plan your selections.</p>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg">Browse upcoming fixtures, live scores, team context, and clear predictions entered and managed by the <strong className="text-foreground">{siteName}</strong>. Every fixture stays visible while you plan your selections.</p>
             <div className="mt-8 flex flex-wrap gap-3"><Link href="/predictions/today" className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Explore today <ArrowRight className="h-4 w-4" /></Link><Link href="/predictions/week" className="inline-flex items-center gap-2 rounded-md border border-border bg-surface/60 px-5 py-3 text-sm font-semibold text-foreground hover:border-primary/50">Browse the week</Link></div>
           </div>
         </Container>

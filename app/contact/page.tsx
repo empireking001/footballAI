@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { fetchApi } from "@/lib/api/server";
+import { fetchApi, getSiteName } from "@/lib/api/server";
 import { SiteSettings } from "@/types/api";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Get in touch with the Football AI team.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: "Contact",
+    description: `Get in touch with the ${siteName} team.`,
+  };
+}
 
 export default async function ContactPage() {
   const { data: settings } = await fetchApi<SiteSettings>("/settings", {

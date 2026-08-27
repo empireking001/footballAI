@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { MatchBreakdown } from '@/components/predictions/MatchBreakdown';
 import { MatchIntelligence } from '@/components/predictions/MatchIntelligence';
-import { fetchApi } from '@/lib/api/server';
+import { fetchApi, getSiteName } from '@/lib/api/server';
 import { Match, Prediction } from '@/types/api';
 import { formatKickoff, formatMatchScore } from '@/lib/utils';
 import { AdBanner } from '@/components/ads/AdBanner';
@@ -38,10 +38,10 @@ function FixtureHeader({ match, badge }: { match: Match; badge: string }) {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const [{ data: prediction }, { data: match }] = await Promise.all([getPrediction(id), getMatch(id)]);
+  const [{ data: prediction }, { data: match }, siteName] = await Promise.all([getPrediction(id), getMatch(id), getSiteName()]);
   const subject = prediction?.match ?? match;
   if (!subject) return { title: 'Match centre' };
-  return { title: `${subject.homeTeam.name} vs ${subject.awayTeam.name} | Football AI`, description: `Manual prediction and match details for ${subject.homeTeam.name} vs ${subject.awayTeam.name}.` };
+  return { title: `${subject.homeTeam.name} vs ${subject.awayTeam.name} | ${siteName}`, description: `Manual prediction and match details for ${subject.homeTeam.name} vs ${subject.awayTeam.name}.` };
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {

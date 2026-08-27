@@ -1,13 +1,16 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { TeamSearch } from '@/components/teams/TeamSearch';
-import { fetchApi } from '@/lib/api/server';
+import { fetchApi, getSiteName } from '@/lib/api/server';
 import { Team } from '@/types/api';
 
-export const metadata: Metadata = {
-  title: 'Teams',
-  description: 'Search and browse every team covered by Football AI manual picks.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'Teams',
+    description: `Search and browse every team covered by ${siteName} manual picks.`,
+  };
+}
 
 export default async function TeamsPage() {
   const { data } = await fetchApi<Team[]>('/teams?limit=30', { revalidate: 3600 });

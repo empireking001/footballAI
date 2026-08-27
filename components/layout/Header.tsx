@@ -19,7 +19,7 @@ const NAV_LINKS = [
   { label: "Pricing", href: "/pricing" },
 ];
 
-export function Header({ siteName = 'Football AI', logoUrl }: { siteName?: string; logoUrl?: string }) {
+export function Header({ siteName = 'GreenLord', logoUrl }: { siteName?: string; logoUrl?: string }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
 

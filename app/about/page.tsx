@@ -1,39 +1,43 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { Card, CardContent } from '@/components/ui/Card';
+import { getSiteName } from '@/lib/api/server';
 
-export const metadata: Metadata = {
-  title: 'About',
-  description: 'How Football AI generates predictions and why we show our accuracy track record.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'About',
+    description: `How ${siteName} presents live football data and administrator-entered manual picks.`,
+  };
+}
 
 const PILLARS = [
   {
-    title: 'Statistics first',
-    body: 'Every prediction starts with a Poisson expected-goals model built from real recent form, head-to-head history, and league scoring trends — not a black box.',
+    title: 'Verified data',
+    body: 'Fixtures, scores, standings, team records, form, and odds come from the connected football-data services and are shown with clear availability states.',
   },
   {
-    title: 'Plain-English explanations',
-    body: "We use AI to explain the numbers the model already produced, in a couple of sentences you can actually read before kickoff — never to invent a probability.",
+    title: 'Manual picks',
+    body: 'Every user-facing selection is entered and reviewed by an administrator. The platform does not generate automated predictions or assistant recommendations.',
   },
   {
-    title: 'Graded, not just generated',
-    body: 'Every prediction is automatically checked against the final result. Our accuracy stats on the home page are the real, ongoing track record — not a marketing number.',
+    title: 'Transparent context',
+    body: 'Each match page brings the pick together with team comparison, recent form, head-to-head history, and league information so users can review the available facts.',
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const siteName = await getSiteName();
   return (
     <>
       <div className="border-b border-border bg-surface/50 py-12 text-center sm:py-16">
         <Container className="max-w-2xl">
           <span className="font-mono text-xs uppercase tracking-widest text-primary">About</span>
           <h1 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight sm:text-4xl">
-            Predictions you can actually check
+            Football information you can review
           </h1>
           <p className="mt-3 text-sm text-muted">
-            Football AI exists because most prediction sites ask you to trust a number with no way
-            to verify it. We&apos;d rather show our work.
+            {siteName} combines live football information with clear, administrator-entered picks. We show the supporting facts instead of asking users to trust an unexplained number.
           </p>
         </Container>
       </div>
@@ -43,9 +47,7 @@ export default function AboutPage() {
           {PILLARS.map((pillar) => (
             <Card key={pillar.title}>
               <CardContent className="pt-5">
-                <h2 className="font-display text-lg font-bold uppercase tracking-tight">
-                  {pillar.title}
-                </h2>
+                <h2 className="font-display text-lg font-bold uppercase tracking-tight">{pillar.title}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{pillar.body}</p>
               </CardContent>
             </Card>

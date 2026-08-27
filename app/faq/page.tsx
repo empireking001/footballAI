@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
+import { getSiteName } from '@/lib/api/server';
 
-export const metadata: Metadata = {
-  title: 'FAQ',
-  description: 'Frequently asked questions about Football AI manual picks, VIP access, and accuracy.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'FAQ',
+    description: `Frequently asked questions about ${siteName} manual picks, VIP access, and accuracy.`,
+  };
+}
 
 const FAQS = [
   {

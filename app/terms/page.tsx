@@ -1,26 +1,31 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/legal/LegalPage';
+import { getSiteName } from '@/lib/api/server';
 
 // NOTE FOR THE TEAM: standard template terms covering account use, the informational nature of administrator-entered picks (important for
 // limiting liability around gambling-adjacent content), and subscription
 // billing. Have a lawyer review before launch, especially around local
 // gambling-adjacent-content regulations in the jurisdictions you operate.
-export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description: 'The terms that govern your use of Football AI.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'Terms of Service',
+    description: `The terms that govern your use of ${siteName}.`,
+  };
+}
 
-export default function TermsOfServicePage() {
+export default async function TermsOfServicePage() {
+  const siteName = await getSiteName();
   return (
     <LegalPage title="Terms of Service" lastUpdated="27 July 2026">
       <p>
-        These Terms of Service (&quot;Terms&quot;) govern your access to and use of Football AI. By
+        These Terms of Service (&quot;Terms&quot;) govern your access to and use of {siteName}. By
         creating an account or using the site, you agree to these Terms.
       </p>
 
       <h2>1. Not betting advice</h2>
       <p>
-        Football AI provides administrator-entered football picks and match information for informational
+        {siteName} provides administrator-entered football picks and match information for informational
         and entertainment purposes only. Picks are estimates informed by available match data and are
         not guaranteed to be accurate. Nothing on this site constitutes betting, financial, or
         professional advice. You are solely responsible for any decisions you make based on content
@@ -55,7 +60,7 @@ export default function TermsOfServicePage() {
 
       <h2>5. Intellectual property</h2>
       <p>
-        All predictions, analysis, design, and branding on Football AI are our property or licensed
+        All predictions, analysis, design, and branding on {siteName} are our property or licensed
         to us. You may not copy or redistribute this content for commercial purposes without written
         permission.
       </p>
@@ -69,7 +74,7 @@ export default function TermsOfServicePage() {
 
       <h2>7. Limitation of liability</h2>
       <p>
-        To the fullest extent permitted by law, Football AI is not liable for any indirect,
+        To the fullest extent permitted by law, {siteName} is not liable for any indirect,
         incidental, or consequential damages arising from your use of the site, including any losses
         related to wagering decisions made using our content.
       </p>

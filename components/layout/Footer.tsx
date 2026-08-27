@@ -49,7 +49,7 @@ const SOCIAL_LINKS = [
   { icon: MessageCircle, href: 'https://wa.me', label: 'WhatsApp' },
 ];
 
-export function Footer({ siteName = 'Football AI' }: { siteName?: string }) {
+export function Footer({ siteName = 'GreenLord' }: { siteName?: string }) {
   return (
     <footer className="border-t border-border bg-surface">
       <Container className="py-14">

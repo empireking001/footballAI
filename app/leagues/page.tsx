@@ -1,14 +1,17 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/ui/Container';
 import { LeagueCard } from '@/components/leagues/LeagueCard';
-import { fetchApi } from '@/lib/api/server';
+import { fetchApi, getSiteName } from '@/lib/api/server';
 import { League } from '@/types/api';
 import { AdBanner } from '@/components/ads/AdBanner';
 
-export const metadata: Metadata = {
-  title: 'Leagues',
-  description: 'Browse every league and competition covered by Football AI manual picks.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'Leagues',
+    description: `Browse every league and competition covered by ${siteName} manual picks.`,
+  };
+}
 
 export default async function LeaguesPage() {
   const { data } = await fetchApi<League[]>('/leagues?limit=100', { revalidate: 3600 });

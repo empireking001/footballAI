@@ -3,6 +3,8 @@ import { ApiResponse } from "./auth";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
+export const FALLBACK_SITE_NAME = 'GreenLord';
+
 export interface FetchOptions extends Omit<RequestInit, "next"> {
   revalidate?: number | false; // Seconds for ISR caching; false to disable caching
   tags?: string[]; // Cache tags for demand-based revalidation via revalidateTag()
@@ -12,6 +14,11 @@ export interface FetchResult<T> {
   data: T | null;
   error: string | null;
   status: number | null;
+}
+
+export async function getSiteName(): Promise<string> {
+  const { data } = await fetchApi<{ siteName?: string }>('/settings', { cache: 'no-store' });
+  return data?.siteName?.trim() || FALLBACK_SITE_NAME;
 }
 
 /**

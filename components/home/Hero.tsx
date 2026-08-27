@@ -41,7 +41,7 @@ export function Hero({ prediction }: { prediction: Prediction | null }) {
             Predictions built on <span className="text-primary">real numbers</span>, not vibes
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-balance text-base text-muted sm:text-lg">
-            Every pick is entered by the Football AI team and presented with clear markets, supporting context, and transparent results.
+            Every pick is entered by our administrator team and presented with clear markets, supporting context, and transparent results.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button size="lg" asChild>

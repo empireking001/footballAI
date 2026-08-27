@@ -3,14 +3,14 @@ import { LegalPage } from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = {
   title: 'Cookie Policy',
-  description: 'How Football AI uses cookies.',
+  description: 'How this platform uses cookies.',
 };
 
 export default function CookiePolicyPage() {
   return (
     <LegalPage title="Cookie Policy" lastUpdated="27 July 2026">
       <p>
-        This Cookie Policy explains what cookies Football AI uses and why. We keep cookie use
+        This Cookie Policy explains what cookies this platform uses and why. We keep cookie use
         minimal and functional — we don&apos;t use cookies for third-party advertising.
       </p>
 

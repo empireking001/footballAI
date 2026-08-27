@@ -28,7 +28,7 @@ export function FeaturedPredictionBrowser({
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-primary">Curated feed</span>
             <h2 className="mt-2 font-display text-3xl font-bold uppercase tracking-tight">Featured manual picks</h2>
-            <p className="mt-2 max-w-xl text-sm text-muted">Browse administrator-entered picks by kickoff date. Featured status and VIP access are curated by the Football AI team.</p>
+            <p className="mt-2 max-w-xl text-sm text-muted">Browse administrator-entered picks by kickoff date. Featured status and VIP access are curated by our administrator team.</p>
           </div>
           <Link href="/predictions/today" className="text-sm font-semibold text-primary hover:underline">View all picks</Link>
         </div>

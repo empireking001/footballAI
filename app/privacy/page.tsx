@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/components/legal/LegalPage';
+import { getSiteName } from '@/lib/api/server';
 
 // NOTE FOR THE TEAM: this is standard template language covering the data
 // this platform actually collects (accounts, payments via third-party
@@ -7,16 +8,20 @@ import { LegalPage } from '@/components/legal/LegalPage';
 // particularly the sections on payment data handling and any
 // jurisdiction-specific requirements (e.g. NDPR in Nigeria, GDPR if you
 // serve EU users).
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'How Football AI collects, uses, and protects your data.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'Privacy Policy',
+    description: `How ${siteName} collects, uses, and protects your data.`,
+  };
+}
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const siteName = await getSiteName();
   return (
     <LegalPage title="Privacy Policy" lastUpdated="27 July 2026">
       <p>
-        This Privacy Policy explains what information Football AI (&quot;we&quot;, &quot;us&quot;)
+        This Privacy Policy explains what information {siteName} (&quot;we&quot;, &quot;us&quot;)
         collects when you use our website and services, and how we use it.
       </p>
 

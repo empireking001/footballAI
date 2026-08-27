@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Trophy, Users2, CalendarCheck, PenLine } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Card, CardContent } from '@/components/ui/Card';
-import { fetchApi } from '@/lib/api/server';
+import { fetchApi, getSiteName } from '@/lib/api/server';
 
 interface PublicStats {
   leaguesCovered: number;
@@ -18,10 +18,13 @@ interface PublicStats {
   };
 }
 
-export const metadata: Metadata = {
-  title: 'Statistics',
-  description: 'Platform-wide coverage and accuracy statistics for Football AI.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSiteName();
+  return {
+    title: 'Statistics',
+    description: `Platform-wide coverage and accuracy statistics for ${siteName}.`,
+  };
+}
 
 export default async function StatisticsPage() {
   const { data } = await fetchApi<PublicStats>('/stats', { revalidate: 1800 });

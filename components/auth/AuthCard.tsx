@@ -1,5 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Container } from '@/components/ui/Container';
+import { apiClient } from '@/lib/api/client';
+import { SiteSettings } from '@/types/api';
+
+const FALLBACK_SITE_NAME = 'GreenLord';
 
 export function AuthCard({
   title,
@@ -12,6 +19,13 @@ export function AuthCard({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const { data: settings } = useQuery({
+    queryKey: ['public', 'settings', 'auth-branding'],
+    queryFn: async () => (await apiClient.get<{ data: SiteSettings }>('/settings')).data.data,
+    staleTime: 60_000,
+  });
+  const siteName = settings?.siteName?.trim() || FALLBACK_SITE_NAME;
+
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden py-12">
       <div
@@ -21,7 +35,7 @@ export function AuthCard({
       <Container className="relative flex justify-center">
         <div className="w-full max-w-md rounded-xl border border-border bg-surface p-8 shadow-card sm:p-10">
           <Link href="/" className="mb-6 inline-block font-display text-xl font-bold">
-            FOOTBALL<span className="text-primary">AI</span>
+            {siteName}
           </Link>
           <h1 className="font-display text-2xl font-bold uppercase tracking-tight">{title}</h1>
           {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
