@@ -79,6 +79,16 @@ export async function RecentResults({ days = 7 }: { days?: number }) {
   const predictions = data ?? [];
   if (predictions.length === 0) return null;
 
+  const groups = Array.from(
+    predictions.reduce((map, prediction) => {
+      const key = new Date(prediction.match.kickoffAt).toISOString().slice(0, 10);
+      const group = map.get(key) ?? [];
+      group.push(prediction);
+      map.set(key, group);
+      return map;
+    }, new Map<string, Prediction[]>()),
+  );
+
   return (
     <section className="border-y border-border bg-surface/40 py-14 sm:py-18">
       <div className="container">
@@ -90,7 +100,20 @@ export async function RecentResults({ days = 7 }: { days?: number }) {
           </div>
           <Link href="/statistics" className="inline-flex items-center rounded-full border border-border px-4 py-2 text-xs font-semibold text-muted hover:border-primary/50 hover:text-foreground">View statistics</Link>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{predictions.map((prediction) => <RecentResultCard key={prediction._id} prediction={prediction} />)}</div>
+        <div className="space-y-8">
+          {groups.map(([dateKey, dayPredictions]) => {
+            const date = new Date(`${dateKey}T12:00:00.000Z`);
+            return (
+              <div key={dateKey}>
+                <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
+                  <span className="rounded-full bg-primary/15 px-3 py-1 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-primary">{date.toLocaleDateString('en-NG', { weekday: 'short' })}</span>
+                  <h3 className="font-display text-lg font-bold uppercase tracking-tight text-foreground">{date.toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{dayPredictions.map((prediction) => <RecentResultCard key={prediction._id} prediction={prediction} />)}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

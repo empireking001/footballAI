@@ -28,7 +28,36 @@ export function FixtureFeed({ items, emptyMessage = 'No fixtures found for this 
   return <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{items.map((item) => item.isVipLocked ? <LockedFixtureCard key={item.match._id} item={item} /> : item.prediction ? <PredictionCard key={item.match._id} prediction={item.prediction} /> : <AwaitingPredictionCard key={item.match._id} item={item} />)}</div>;
 }
 
-export function DateNav({ active }: { active: 'today' | 'tomorrow' | 'week' }) {
-  const links = [{ key: 'today', label: 'Today', href: '/predictions/today' }, { key: 'tomorrow', label: 'Tomorrow', href: '/predictions/tomorrow' }, { key: 'week', label: 'Next 7 days', href: '/predictions/week' }] as const;
-  return <div className="mb-8 flex flex-wrap gap-2">{links.map((link) => <Link key={link.key} href={link.href} className={`rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${active === link.key ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted hover:border-primary/50 hover:text-foreground'}`}>{link.label}<ArrowRight className="ml-1 inline h-3 w-3" /></Link>)}</div>;
+function dateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+export function DateNav({ active, activeDate }: { active?: 'today' | 'tomorrow' | 'week'; activeDate?: string }) {
+  const base = new Date();
+  base.setUTCHours(0, 0, 0, 0);
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(base);
+    date.setUTCDate(base.getUTCDate() + index);
+    const key = dateKey(date);
+    return {
+      key,
+      href: `/predictions/day/${key}`,
+      shortDay: date.toLocaleDateString('en-NG', { weekday: 'short', timeZone: 'Africa/Lagos' }),
+      dateLabel: date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }),
+      selected: activeDate === key || (!activeDate && ((active === 'today' && index === 0) || (active === 'tomorrow' && index === 1))),
+    };
+  });
+
+  return (
+    <div className="mb-8 overflow-x-auto pb-1">
+      <div className="flex min-w-max gap-2">
+        {days.map((day) => (
+          <Link key={day.key} href={day.href} className={`flex min-w-[4.8rem] flex-col items-center rounded-lg border px-3 py-2 text-center transition-colors ${day.selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-surface text-muted hover:border-primary/50 hover:text-foreground'}`}>
+            <span className="text-[11px] font-bold uppercase tracking-wider">{day.shortDay}</span>
+            <span className="mt-0.5 text-[11px]">{day.dateLabel}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
